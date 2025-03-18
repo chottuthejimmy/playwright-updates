@@ -8,6 +8,8 @@ steps:
         action: click
   - prompt: Assert that the pricing page loads.
     commands:
+      - command: wait
+        timeout: 5000
       - command: assert
         expect: the pricing page is displayed with "Pricing and Support" heading
   - prompt: >-
