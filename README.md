@@ -8,7 +8,7 @@ GitHub actions workflow files that generate and run end-to-end regression tests 
 
 **What is TestDriver?**
 
-Next generation autonomous AI agent for end-to-end testing of web & desktop
+Next generation autonomous AI agent for end-to-end testing of web & desktop applications
 
 [Website](https://testdriver.ai) | [Docs](https://docs.testdriver.ai) | [GitHub Action](https://github.com/marketplace/actions/testdriver-ai) | [Join our Discord](https://discord.gg/a8Cq739VWn)
 
