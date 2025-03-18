@@ -1,0 +1,22 @@
+version: 4.2.20
+steps:
+  - prompt: Click on "Pricing" in the header.
+    commands:
+      - command: hover-text
+        text: Pricing
+        description: link in the header
+        action: click
+  - prompt: Assert that the pricing page loads.
+    commands:
+      - command: assert
+        expect: the pricing page is displayed with "Pricing and Support" heading
+  - prompt: >-
+      Attempt to purchase a plan and assert the process begins correctly.  # Use
+      the content of the file from the environment
+    commands:
+      - command: hover-text
+        text: Create an Account
+        description: button for Platform Starter plan
+        action: click
+      - command: assert
+        expect: the account creation process begins with a form

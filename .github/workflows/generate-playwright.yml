@@ -48,11 +48,11 @@ jobs:
       
       - uses: testdriverai/action@main
         with:
-          key: ${{ secrets.key }}
+          key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: 1. /run testdriver/${{ matrix.test }} 
           create-pr: true
           pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.markdown }}"
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.test }}"
           pr-branch: testdriver/regression-${{ matrix.markdown }}-${{ github.run_id }}-${{ github.run_attempt }}
           pr-test-filename: ${{matrix.markdown}}.yml
           prerun: |
