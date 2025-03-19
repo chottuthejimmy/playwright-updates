@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67daf89466ff658bbf937b9c
+steps:
+  - prompt: Click on "Try for Free" button.
+    commands:
+      - command: hover-text
+        text: Try for free
+        description: button in the top right of the header
+        action: click
+  - prompt: >-
+      Assert that the sign-up form is displayed.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the text "Register for free" is visible on the page
