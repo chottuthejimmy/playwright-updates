@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67da5d4566ff658bbf9378ad
+steps:
+  - prompt: Click on "Solutions" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: navigation bar link for solutions
+        action: click
+  - prompt: >-
+      Assert that the solutions page is loaded successfully.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: the solutions page is loaded with "The PubNub Platform for" visible
