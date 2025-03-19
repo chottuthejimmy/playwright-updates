@@ -1,0 +1,33 @@
+version: 4.2.20
+session: 67db038f1b8e3a3c383bcc2b
+steps:
+  - prompt: Click on the "LOGIN" link in the header.
+    commands:
+      - command: hover-text
+        text: LOGIN
+        description: login link in the top right of the header
+        action: click
+  - prompt: Assert that the login page or modal is displayed.
+    commands:
+      - command: assert
+        expect: the login page is displayed with a "LOG IN" button
+  - prompt: Enter test credentials.
+    commands:
+      - command: hover-text
+        text: Email address
+        description: email input field
+        action: click
+      - command: type
+        text: test@example.com
+      - command: hover-text
+        text: Password
+        description: password input field
+        action: click
+      - command: type
+        text: password123
+  - prompt: Click the "Log In" button.
+    commands:
+      - command: hover-text
+        text: LOG IN
+        description: log in button on the login page
+        action: click
