@@ -24,6 +24,10 @@ on:
       GH_TOKEN:
         required: true
         description: The GitHub token
+    outputs:
+      pr-branches:
+        description: JSON array of created PR branch names
+        value: ${{ jobs.test.outputs.pr-branches }}
 
 jobs:
   gather-markdown-files:
@@ -53,6 +57,8 @@ jobs:
       matrix:
         markdown: ${{ fromJson(needs.gather-markdown-files.outputs.markdown_files) }}
       fail-fast: false
+    outputs:
+      pr-branches: ${{ steps.save-branches.outputs.branches }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -87,10 +93,15 @@ jobs:
             Start-Process "C:/Program Files/Google/Chrome/Application/chrome.exe" -ArgumentList "--start-maximized", "--load-extension=$(pwd)/node_modules/dashcam-chrome/build", "${{ vars.TESTDRIVER_WEBSITE }}"
             exit
           create-pr: true
-          pr-base: ${{ inputs.base-branch }}
-          pr-title: "TestDriver.ai / Generate Test / ${{ matrix.markdown }}"
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Regression / ${{ matrix.markdown }}"
           pr-branch: testdriver/regression-${{ matrix.markdown }}-${{ github.run_id }}-${{ github.run_attempt }}
           pr-test-filename: ${{matrix.markdown}}.yml
         env:
           FORCE_COLOR: "3"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Save branch name
+        id: save-branches
+        run: |
+          BRANCH="testdriver/regression-${{ matrix.markdown }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "branches=[\"$BRANCH\"]" >> $GITHUB_OUTPUT

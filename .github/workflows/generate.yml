@@ -32,10 +32,10 @@ jobs:
 
   generate-playwright:
     name: TestDriver.ai / Generate / Playwright
-    needs: generate-exploratory
+    needs: generate-regression
     uses: ./.github/workflows/generate-playwright.yml
     with:
-      base-branch: ${{ needs.generate-exploratory.outputs.pr-branch }}
+      pr-branches: ${{ needs.generate-regression.outputs.pr-branches }}
       website-url: ${{ vars.TESTDRIVER_WEBSITE }}
     secrets:
       key: ${{ secrets.TESTDRIVER_API_KEY }}

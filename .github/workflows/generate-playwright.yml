@@ -8,10 +8,10 @@ on:
         type: string
         required: true
         description: The URL of the website to test
-      base-branch:
+      pr-branches:
         type: string
         required: true
-        description: The branch name of the pull request
+        description: A JSON array of regression test's branch names
     secrets:
       key:
         required: true
@@ -30,13 +30,16 @@ jobs:
   gather-test-files:
     name: Setup Test Matrix (./testdriver/*.yml)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ${{ fromJson(inputs.pr-branches) }}
     outputs:
       test_files: ${{ steps.test_list.outputs.files }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ inputs.base-branch }}
+          ref: ${{ matrix.branch }}
       - name: Find all test files and extract filenames
         id: test_list
         run: |
@@ -57,8 +60,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
         with:
-          # ref: ${{ github.event.ref }} # ${{ github.event.ref }} is the branch name, need to use $ {{ inputs.base-branch }} for the base branch
-          ref: ${{ inputs.base-branch }}
+          ref: ${{ matrix.branch }}
 
       - name: Extract test name
         id: testname
@@ -74,9 +76,9 @@ jobs:
           key: ${{ secrets.key }}
           prompt: 1. /run testdriver/${{ matrix.test }}
           create-pr: true
-          pr-base: ${{ inputs.base-branch }}
-          pr-title: "TestDriver.ai / Generate TestDriver and Playwright / ${{ steps.testname.outputs.testname }}" # TODO: What should the title be?
-          pr-branch: testdriver/regression-${{ steps.testname.outputs.testname }}-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate TestDriver and Playwright / ${{ matrix.branch }} / ${{ steps.testname.outputs.testname }}"
+          pr-branch: testdriver/playwright-${{ steps.testname.outputs.testname }}-${{ github.run_id }}-${{ github.run_attempt }}
           pr-test-filename: ${{steps.testname.outputs.testname}}.test.js
           prerun: |
             echo "Step 1: Installing Playwright globally"
