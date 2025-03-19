@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67daf89366ff658bbf937b9a
+steps:
+  - prompt: Click on "Solutions" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: navigation bar link for Solutions
+        action: click
+  - prompt: >-
+      Assert that the "Solutions" page is displayed correctly.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: the "Solutions" dropdown menu is visible
