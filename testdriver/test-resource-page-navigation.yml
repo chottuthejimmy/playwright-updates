@@ -1,0 +1,27 @@
+version: 4.2.20
+session: 67da5d3d66ff658bbf9378a4
+steps:
+  - prompt: Click on "Resources" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Resources
+        description: navigation bar link for resources
+        action: click
+  - prompt: >-
+      Assert that various resource options are listed.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: Blog is listed
+      - command: assert
+        expect: Demos is listed
+      - command: assert
+        expect: Solution Briefs is listed
+      - command: assert
+        expect: Customers is listed
+      - command: assert
+        expect: eBooks is listed
+      - command: assert
+        expect: Careers is listed
+      - command: assert
+        expect: About Us is listed
