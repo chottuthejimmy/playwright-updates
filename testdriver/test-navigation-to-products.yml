@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67daf8821b8e3a3c383bcb2d
+steps:
+  - prompt: Click on "Products" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Products
+        description: Products in the navigation bar
+        action: click
+  - prompt: >-
+      Assert that the "Products" page is displayed correctly.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: the "Products" dropdown is visible
