@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67da5d451b8e3a3c383bc843
+steps:
+  - prompt: Click on "Developers" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Developers
+        description: developers link in the navigation bar
+        action: click
+  - prompt: >-
+      Assert that developer resources or documentation are available.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: Documentation is visible on the page
