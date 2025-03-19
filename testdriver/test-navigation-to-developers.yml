@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67daf88166ff658bbf937b95
+steps:
+  - prompt: Click on "Developers" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Developers
+        description: navigation link for Developers in the top navigation bar
+        action: click
+  - prompt: >-
+      Assert that the "Developers" page is displayed correctly.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: PubNub for Developers is visible on the page
