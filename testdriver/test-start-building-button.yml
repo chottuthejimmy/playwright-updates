@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67da5d4466ff658bbf9378a9
+steps:
+  - prompt: Click on the "Start Building" button.
+    commands:
+      - command: hover-text
+        text: Start Building
+        description: button to initiate the building process on the homepage
+        action: click
+  - prompt: >-
+      Assert that the onboarding or builder page is loaded.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: the text "Register for free" is visible on the page
