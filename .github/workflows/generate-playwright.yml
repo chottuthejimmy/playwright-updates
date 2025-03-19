@@ -55,6 +55,7 @@ jobs:
     strategy:
       matrix:
         test: ${{ fromJson(needs.gather-test-files.outputs.test_files) }}
+        branch: ${{ fromJson(inputs.pr-branches) }}
       fail-fast: false
     steps:
       - name: Check out repository
