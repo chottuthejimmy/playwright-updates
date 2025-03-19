@@ -1,0 +1,31 @@
+version: 4.2.20
+session: 67db038b1b8e3a3c383bcc25
+steps:
+  - prompt: Scroll to the page footer.
+    commands:
+      - command: scroll-until-text
+        text: Privacy Policy
+        direction: down
+        method: keyboard
+  - prompt: Click on the "Privacy Policy" link in the footer.
+    commands:
+      - command: hover-text
+        text: Privacy Policy
+        description: link in the footer section
+        action: click
+  - prompt: Assert that the Privacy Policy page opens.
+    commands:
+      - command: assert
+        expect: PubNub Privacy Policy is visible on the page
+  - prompt: Click on the "Cookie Settings" link.
+    commands:
+      - command: hover-text
+        text: Cookies Settings
+        description: link in the footer section
+        action: click
+  - prompt: >-
+      Assert that the Cookie Settings page or modal is displayed.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: the Privacy Preference Center is displayed
