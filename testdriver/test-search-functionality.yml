@@ -1,0 +1,27 @@
+version: 4.2.20
+session: 67db038b1b8e3a3c383bcc27
+steps:
+  - prompt: Click on the search icon in the header.
+    commands:
+      - command: hover-image
+        description: search icon in the header
+        action: click
+  - prompt: Type "chat SDK" into the search field.
+    commands:
+      - command: hover-text
+        text: Search or ask anything
+        description: search input field
+        action: click
+      - command: type
+        text: chat SDK
+  - prompt: Press enter.
+    commands:
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: >-
+      Assert that search results related to "chat SDK" are displayed.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: search results for "chat SDK" are displayed
