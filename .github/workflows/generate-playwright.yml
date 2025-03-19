@@ -20,6 +20,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.ref }}
+      # - name: Find all the markdown files
+      #   id: markdown_list
       - name: Find all test files and extract filenames
         id: test_list
         run: |
@@ -29,32 +31,38 @@ jobs:
           echo "::set-output name=files::$FILES_JSON"
 
   test:
+    name: Generate Playwright Test - ${{ matrix.test }}
     needs: gather-test-files
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test: ${{ fromJson(needs.gather-test-files.outputs.test_files) }}
       fail-fast: false
-    name: ${{ matrix.test }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.ref }}
+          ref: ${{ github.event.ref }} # ${{ github.event.ref }} is the branch name, need to use $ {{ inputs.base-branch }} for the base branch
+
+      - name: Extract test name
+        id: testname
+        run: |
+          echo "testname=$(echo ${{ matrix.test }} | sed 's/\.yml$//')" >> $GITHUB_OUTPUT
 
       - name: Display filename being tested
         run: |
           echo "Running job for file: ${{ matrix.test }}"
-      
+
       - uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
-          prompt: 1. /run testdriver/${{ matrix.test }} 
+          prompt: 1. /run testdriver/${{ matrix.test }}
           create-pr: true
           pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.test }}"
-          pr-branch: testdriver/regression-${{ matrix.markdown }}-${{ github.run_id }}-${{ github.run_attempt }}
-          pr-test-filename: ${{matrix.markdown}}.yml
+          pr-title: "TestDriver.ai / Generate TestDriver and Playwright / ${{ steps.testname.outputs.testname }}" # TODO: What should the title be?
+          # pr-branch: testdriver/regression-${{ steps.testname.outputs.testname }}-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-branch: tarun/first-test
+          pr-test-filename: ${{steps.testname.outputs.testname}}.test.js
           prerun: |
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
@@ -63,7 +71,7 @@ jobs:
             playwright install --with-deps chromium
 
             echo "Step 4: Generating Playwright script"
-            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ matrix.test }}.spec.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.testname.outputs.testname }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
             Write-Output "Started Playwright with PID: $($process.Id)"
 
             echo "Step 5: Completed"

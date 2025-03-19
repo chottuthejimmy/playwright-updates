@@ -20,5 +20,7 @@ steps:
         text: Create an Account
         description: button for Platform Starter plan
         action: click
+      - command: wait
+        timeout: 5000
       - command: assert
         expect: the account creation process begins with a form
