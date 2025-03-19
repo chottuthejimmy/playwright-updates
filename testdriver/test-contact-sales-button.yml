@@ -1,0 +1,17 @@
+version: 4.2.20
+session: 67db03931b8e3a3c383bcc2e
+steps:
+  - prompt: Click on the "Contact Sales" button.
+    commands:
+      - command: hover-text
+        text: Contact Sales
+        description: red button in the top navigation bar
+        action: click
+  - prompt: >-
+      Assert that a contact form or appropriate information to contact sales is
+      displayed.  # Use the content of the file from the environment
+    commands:
+      - command: assert
+        expect: >-
+          contact form is displayed with fields for First Name, Last Name, Email
+          Address, Company Name, Use Case, Country, and Message
