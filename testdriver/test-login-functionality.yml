@@ -1,0 +1,9 @@
+version: 4.2.20
+session: 67dc19b4559da55d39a32167
+steps:
+  - prompt: Click the "LOGIN" link.
+    commands:
+      - command: hover-text
+        text: LOGIN
+        description: login link in the top right of the header
+        action: click
