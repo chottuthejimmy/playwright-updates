@@ -1,0 +1,17 @@
+version: 4.2.20
+session: 67dbc7cb79861c0eef41af0e
+steps:
+  - prompt: Click on the "Try for free" button.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Try for free
+        description: button in the top right of the header
+        action: click
+  - prompt: >-
+      Assert that the sign-up page or relevant offer page is loaded.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: the page contains "Register for free"
