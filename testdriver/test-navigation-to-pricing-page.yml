@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67dc3c89559da55d39a322e3
+steps:
+  - prompt: Click on the "Pricing" link in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Pricing
+        description: pricing link in the navigation bar
+        action: click
+  - prompt: >-
+      Assert that the Pricing page loads successfully.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: Pricing and Support is visible on the page
