@@ -89,6 +89,8 @@ jobs:
           fetch-depth: 0
       - name: Get test file name
         id: get_test_file
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Extract test name from branch name (format: testdriver/regression-{test_name}-{run_id}-{attempt})
           TEST_NAME=$(echo "${{ matrix.branch }}" | sed -E 's/testdriver\/regression-([^-]+).*/\1/')
