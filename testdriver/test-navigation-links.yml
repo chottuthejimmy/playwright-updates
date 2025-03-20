@@ -1,0 +1,29 @@
+version: 4.2.20
+session: 67dc001d79861c0eef41afeb
+steps:
+  - prompt: Click on "Products" in the navigation menu.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Products
+        description: products link in the navigation menu
+        action: click
+  - prompt: Assert that the page changes to the products page.
+    commands:
+      - command: assert
+        expect: PUBNUB PLATFORM text is visible on the page
+  - prompt: Click on "Solutions" in the navigation menu.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Solutions
+        description: solutions link in the navigation menu
+        action: click
+  - prompt: >-
+      Assert that the page changes to the solutions page.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: BY USE CASE text is visible on the page
