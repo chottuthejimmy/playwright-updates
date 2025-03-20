@@ -1,0 +1,25 @@
+version: 4.2.20
+session: 67dbc7cc559da55d39a31e56
+steps:
+  - prompt: Click on "Products" in the navigation menu.
+    commands:
+      - command: hover-text
+        text: Products
+        description: navigation menu item for products
+        action: click
+  - prompt: Assert that the page changes to the products page.
+    commands:
+      - command: assert
+        expect: PUBNUB PLATFORM is visible on the page
+  - prompt: Click on "Solutions" in the navigation menu.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: navigation menu item for solutions
+        action: click
+  - prompt: >-
+      Assert that the page changes to the solutions page.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: BY USE CASE is visible on the page
