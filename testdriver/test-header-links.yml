@@ -1,0 +1,27 @@
+version: 4.2.20
+session: 67dc05c879861c0eef41b120
+steps:
+  - prompt: >-
+      Click on each link in the header menu  # Use the content of the file from
+      the environment
+    commands:
+      - command: hover-text
+        text: Products
+        description: products link in the header menu
+        action: click
+      - command: hover-text
+        text: Solutions
+        description: solutions link in the header menu
+        action: click
+      - command: hover-text
+        text: Pricing
+        description: pricing link in the header menu
+        action: click
+      - command: hover-text
+        text: Developers
+        description: developers link in the header menu
+        action: click
+      - command: hover-text
+        text: Resources
+        description: resources link in the header menu
+        action: click
