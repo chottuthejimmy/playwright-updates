@@ -33,25 +33,8 @@ jobs:
         id: get_branches
         run: |
           # Get all branches with the pattern testdriver/regression-*-${{ github.run_id }}-${{ github.run_attempt }}
-          # Additionally, check git status to find only branches from successful runs
           BRANCHES=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("testdriver/regression-")) | select(.name | contains("-${{ github.run_id }}-${{ github.run_attempt }}")) | .name')
-
-          # Filter to only include branches from successful runs
-          SUCCESSFUL_BRANCHES="[]"
-          for BRANCH in $BRANCHES; do
-            # Get the PR associated with this branch
-            PR_NUMBER=$(gh pr list --head $BRANCH --state all --json number -q '.[0].number')
-            if [ -n "$PR_NUMBER" ]; then
-              # Check if the PR has any failed checks
-              CHECK_STATUS=$(gh pr checks $PR_NUMBER --json conclusion -q '.[] | select(.conclusion == "failure") | .conclusion')
-              if [ -z "$CHECK_STATUS" ]; then
-                # No failures found, add to successful branches
-                SUCCESSFUL_BRANCHES=$(echo $SUCCESSFUL_BRANCHES | jq --arg branch "$BRANCH" '. + [$branch]')
-              fi
-            fi
-          done
-
-          echo "branches=$SUCCESSFUL_BRANCHES" >> $GITHUB_OUTPUT
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
 
   generate-playwright-tests:
     needs: find-regression-branches
