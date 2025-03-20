@@ -1,0 +1,1 @@
+1. Click on each link in the header menu
