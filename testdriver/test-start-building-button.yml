@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67dc05c779861c0eef41b11e
+steps:
+  - prompt: Click the "Start Building" button.
+    commands:
+      - command: hover-text
+        text: Start Building
+        description: button to begin creating a project
+        action: click
+  - prompt: >-
+      Assert that the user is redirected to a getting started or relevant page. 
+      # Use the content of the file from the environment
+    commands:
+      - command: assert
+        expect: Register for free
