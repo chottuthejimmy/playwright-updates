@@ -1,0 +1,50 @@
+version: 4.2.20
+session: 67dc001e79861c0eef41afee
+steps:
+  - prompt: Focus the browser window.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+  - prompt: Click on "Pricing" in the navigation bar.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Pricing
+        description: pricing link in the navigation bar
+        action: click
+  - prompt: Assert that the pricing page displays with accurate details.
+    commands:
+      - command: assert
+        expect: Pricing and Support
+  - prompt: >-
+      Check for any broken links on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: scroll-until-text
+        text: Contact Sales
+        direction: down
+        method: keyboard
+  - prompt: >-
+      Check for any broken links on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: scroll-until-text
+        text: Contact Sales
+        direction: down
+        method: keyboard
+  - prompt: >-
+      Check for any broken links on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: focus-application
+        name: Command Prompt
+      - command: type
+        text: check_links_script.bat
+      - command: press-keys
+        keys:
+          - enter
