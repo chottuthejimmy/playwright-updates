@@ -19,7 +19,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: testdriver/regression-test-developers-link-13953073675-1
+          ref: testdriver/regression-test-try-for-free-button-13953073675-1
       # - name: Find all the markdown files
       #   id: markdown_list
       - name: Find all test files and extract filenames
@@ -32,12 +32,13 @@ jobs:
 
   test:
     name: Generate Playwright Test
+    needs: gather-test-files
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: testdriver/regression-test-developers-link-13953073675-1
+          ref: testdriver/regression-test-try-for-free-button-13953073675-1
 
       - uses: testdriverai/action@main
         with:
@@ -46,7 +47,7 @@ jobs:
           create-pr: true
           pr-base: main
           pr-title: "TestDriver.ai / Generate Regression / test-developers-link"
-          pr-branch: testdriver/regression-test-developers-link-13953073675-1
+          pr-branch: testdriver/regression-test-try-for-free-button-13953073675-1
           pr-test-filename: test-developers-link.test.js
           prerun: |
 
