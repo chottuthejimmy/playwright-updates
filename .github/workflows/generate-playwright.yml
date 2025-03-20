@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: 1. /run testdriver/test-developers-link.yml
           create-pr: true
-          pr-base: testdriver/regression-test-developers-link-13953073675-1
+          pr-base: main
           pr-title: "TestDriver.ai / Generate Regression / test-developers-link"
           pr-branch: testdriver/regression-test-developers-link-13953073675-1
           pr-test-filename: test-developers-link.test.js
@@ -55,9 +55,9 @@ jobs:
             echo "Current branch"
             echo ${{ github.ref }}
             echo "Files inside"
-            ls -la
+            Get-ChildItem -Force
             echo "Files in subdirectories"
-            ls -la -R
+            Get-ChildItem -Recurse -Force
 
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
