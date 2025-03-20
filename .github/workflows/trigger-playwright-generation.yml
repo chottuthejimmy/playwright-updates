@@ -7,6 +7,20 @@ permissions:
   pull-requests: write
 
 on:
+  workflow_dispatch:
+    inputs:
+      base-branch:
+        type: string
+        required: true
+        description: The branch name of the exploratory run
+      run-id:
+        type: string
+        required: true
+        description: The run id of the exploratory run
+      run-attempt:
+        type: string
+        required: true
+        description: The run attempt of the exploratory run
   workflow_call:
     inputs:
       base-branch:
