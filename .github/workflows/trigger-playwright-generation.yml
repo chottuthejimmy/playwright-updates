@@ -15,11 +15,11 @@ on:
         description: The branch name of the exploratory run
       run-id:
         type: string
-        required: true
+        required: false
         description: The run id of the exploratory run
       run-attempt:
         type: string
-        required: true
+        required: false
         description: The run attempt of the exploratory run
   workflow_call:
     inputs:
@@ -76,9 +76,9 @@ jobs:
         id: get_branches
         run: |
           # Get all branches with the pattern testdriver/regression-{test_name}-{run_id}-{attempt}
-          # Need to iterate through each test name in markdown_file_names array and find matching branches
+          # Iterate through each test name from the markdown_file_names JSON array
           BRANCHES_JSON='[]'
-          for TEST_NAME in $(echo '${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}' | jq -r '.[]'); do
+          for TEST_NAME in $(echo "${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}" | jq -r '.[]'); do
             BRANCH=$(gh api repos/${{ github.repository }}/branches --jq ".[] | select(.name == \"testdriver/regression-${TEST_NAME}-13973697183-1\") | .name")
             if [ ! -z "$BRANCH" ]; then
               BRANCHES_JSON=$(echo "$BRANCHES_JSON" | jq --arg branch "$BRANCH" '. + [$branch]')
