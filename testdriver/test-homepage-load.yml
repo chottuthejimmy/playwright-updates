@@ -1,0 +1,23 @@
+version: 4.2.20
+session: 67dc05cc559da55d39a32020
+steps:
+  - prompt: Navigate to the homepage.
+    commands:
+      - command: hover-text
+        text: pubnub
+        description: company logo at the top left of the header
+        action: click
+  - prompt: >-
+      Assert that the homepage loads with all main elements visible  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: the navigation menu is visible
+      - command: assert
+        expect: >-
+          the main heading "The market leading platform for real-time
+          interactive apps" is visible
+      - command: assert
+        expect: the "Start Building" button is visible
+      - command: assert
+        expect: the "Contact sales" button is visible
