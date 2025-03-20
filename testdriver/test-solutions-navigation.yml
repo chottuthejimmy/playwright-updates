@@ -1,0 +1,25 @@
+version: 4.2.20
+session: 67dc0024559da55d39a31f1a
+steps:
+  - prompt: Focus the browser window.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+  - prompt: Hover over "Solutions" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: solutions in the navigation bar
+        action: hover
+  - prompt: Select a solution from the dropdown menu.
+    commands:
+      - command: hover-text
+        text: Chat
+        description: chat option in the solutions dropdown
+        action: click
+  - prompt: >-
+      Assert that the correct solution page is displayed.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: Build communities with live chat functionality is visible
