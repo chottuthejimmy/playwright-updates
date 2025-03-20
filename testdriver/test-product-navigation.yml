@@ -1,0 +1,33 @@
+version: 4.2.20
+session: 67dc002d559da55d39a31f2c
+steps:
+  - prompt: Focus the browser window.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+  - prompt: Hover over "Products" in the navigation bar.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Products
+        description: products in the navigation bar
+        action: hover
+  - prompt: Select a product from the dropdown menu.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Products
+        description: products in the navigation bar
+        action: hover
+      - command: hover-text
+        text: Overview
+        description: overview in the dropdown menu
+        action: click
+  - prompt: >-
+      Assert that the correct product page is displayed.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: the Overview page is displayed
