@@ -1,0 +1,17 @@
+version: 4.2.20
+session: 67dbc7ce79861c0eef41af15
+steps:
+  - prompt: Click on the "Start Building" button.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Start Building
+        description: button to start building on the main page
+        action: click
+  - prompt: >-
+      Assert that the appropriate page or builder is loaded.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: the page contains "Register for free"
