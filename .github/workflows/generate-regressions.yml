@@ -87,6 +87,16 @@ jobs:
             ${{ env.MARKDOWN_CONTENT }}  # Use the content of the file from the environment
             1. /summarize
           prerun: |
+
+            echo "Debug: Current directory"
+            pwd
+            echo "Current branch"
+            echo ${{ github.ref }}
+            echo "Files inside"
+            Get-ChildItem -Force
+            echo "Files in subdirectories"
+            Get-ChildItem -Recurse -Force
+            
             cd $env:TEMP
             npm init -y
             npm install dashcam-chrome
