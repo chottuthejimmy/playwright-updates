@@ -1,0 +1,25 @@
+version: 4.2.20
+session: 67dc05c279861c0eef41b11a
+steps:
+  - prompt: Click on the "Support" link.
+    commands:
+      - command: hover-text
+        text: SUPPORT
+        description: support link in the top right of the header
+        action: click
+  - prompt: Assert that the support page or section is displayed.
+    commands:
+      - command: assert
+        expect: the support page is displayed with "HOW CAN WE HELP YOU?"
+  - prompt: Click on the "Login" link.
+    commands:
+      - command: hover-text
+        text: Sign in
+        description: login link in the top right of the header
+        action: click
+  - prompt: >-
+      Assert that the login form is displayed.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the login form is displayed with "Sign in to PubNub"
