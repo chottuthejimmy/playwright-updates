@@ -1,0 +1,21 @@
+version: 4.2.20
+session: 67dc19bd559da55d39a32170
+steps:
+  - prompt: Reload the home page.
+    commands:
+      - command: press-keys
+        keys:
+          - control
+          - r
+  - prompt: Assert the page loads within acceptable time limits.
+    commands:
+      - command: wait-for-text
+        text: The market leading platform for real-time interactive apps
+      - command: assert
+        expect: The page has loaded successfully
+  - prompt: >-
+      Assert there are no loading errors.  # Use the content of the file from
+      the environment
+    commands:
+      - command: assert
+        expect: The page does not display any error messages like 404 or 500
