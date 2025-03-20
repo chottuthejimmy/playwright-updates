@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67dc3c8b79861c0eef41b3b9
+steps:
+  - prompt: Click on the "Contact Sales" button on the homepage.
+    commands:
+      - command: hover-text
+        text: Contact Sales
+        description: contact sales button in the header
+        action: click
+  - prompt: >-
+      Assert that the Contact Sales page or form appears.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: Contact our experts!
