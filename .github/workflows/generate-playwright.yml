@@ -82,6 +82,16 @@ jobs:
           pr-branch: testdriver/playwright-${{ steps.testname.outputs.testname }}-${{ github.run_id }}-${{ github.run_attempt }}
           pr-test-filename: ${{steps.testname.outputs.testname}}.test.js
           prerun: |
+
+            echo "Debug: Current directory"
+            pwd
+            echo "Current branch"
+            echo ${{ github.ref }}
+            echo "Files inside"
+            ls -la
+            echo "Files in subdirectories"
+            ls -la -R
+
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
 
