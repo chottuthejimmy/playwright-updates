@@ -43,7 +43,6 @@ on:
         description: The GitHub token
 
 jobs:
-
   gather-markdown-file-names:
     name: Gather test names
     runs-on: ubuntu-latest
@@ -54,7 +53,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ inputs.base-branch }}
-  
+
       - name: Find all markdown files and extract filenames
         id: markdown_list
         run: |
@@ -82,7 +81,7 @@ jobs:
           for TEST_NAME in $(echo '${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}' | jq -r '.[]'); do
             BRANCH=$(gh api repos/${{ github.repository }}/branches --jq ".[] | select(.name == \"testdriver/regression-${TEST_NAME}-13973697183-1\") | .name")
             if [ ! -z "$BRANCH" ]; then
-              BRANCHES_JSON=$(echo $BRANCHES_JSON | jq ". + [\"$BRANCH\"]")
+              BRANCHES_JSON=$(echo "$BRANCHES_JSON" | jq --arg branch "$BRANCH" '. + [$branch]')
             fi
           done
           echo "branches=$BRANCHES_JSON" >> $GITHUB_OUTPUT
