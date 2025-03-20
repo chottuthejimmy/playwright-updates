@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67dbc7d3559da55d39a31e68
+steps:
+  - prompt: Click on "Solutions" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: solutions in the navigation bar
+        action: click
+  - prompt: >-
+      Assert that the Solutions page is loaded successfully.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: BY USE CASE is visible on the Solutions page
