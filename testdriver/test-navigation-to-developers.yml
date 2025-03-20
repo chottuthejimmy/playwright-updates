@@ -1,0 +1,17 @@
+version: 4.2.20
+session: 67dbc7bb559da55d39a31e44
+steps:
+  - prompt: Click on "Developers" in the navigation bar.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Developers
+        description: developers link in the navigation bar
+        action: click
+  - prompt: >-
+      Assert that the Developers page is loaded successfully.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: PubNub for Developers is visible
