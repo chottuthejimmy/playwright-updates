@@ -1,0 +1,19 @@
+version: 4.2.20
+session: 67dc19bc79861c0eef41b269
+steps:
+  - prompt: Click the "Try for free" button.
+    commands:
+      - command: hover-text
+        text: Try for free
+        description: button in the top right of the header
+        action: click
+  - prompt: Assert that the user is directed to the sign-up page or free trial page.
+    commands:
+      - command: assert
+        expect: the page contains "Register for free"
+  - prompt: >-
+      Assert that there are no errors displayed on the page.  # Use the content
+      of the file from the environment
+    commands:
+      - command: assert
+        expect: the page does not contain "Error" or "Invalid"
