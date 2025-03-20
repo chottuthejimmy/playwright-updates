@@ -1,0 +1,15 @@
+version: 4.2.20
+session: 67dc3c9e559da55d39a322f6
+steps:
+  - prompt: Click on the "Start Building" button on the homepage.
+    commands:
+      - command: hover-text
+        text: Start Building
+        description: button to begin creating on the homepage
+        action: click
+  - prompt: >-
+      Assert that the user is redirected to the appropriate page or form.  # Use
+      the content of the file from the environment
+    commands:
+      - command: assert
+        expect: the page contains "Register for free"
