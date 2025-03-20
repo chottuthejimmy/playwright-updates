@@ -1,0 +1,29 @@
+version: 4.2.20
+session: 67dbc7c8559da55d39a31e52
+steps:
+  - prompt: Click on the search icon.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-image
+        description: search icon in the webpage content
+        action: click
+  - prompt: Type a query into the search bar.
+    commands:
+      - command: hover-text
+        text: Search or ask anything
+        description: search input field
+        action: click
+      - command: type
+        text: real-time interactive apps
+  - prompt: Press enter to initiate the search.
+    commands:
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: >-
+      Assert that search results are displayed relevant to the query.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: search results for "real-time interactive apps" are displayed
