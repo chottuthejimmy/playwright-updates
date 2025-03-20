@@ -69,9 +69,16 @@ jobs:
       - name: Get Regression Branches
         id: get_branches
         run: |
-          # Get all branches with the pattern testdriver/regression-${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}-${{ github.run_id }}-${{ github.run_attempt }}
-          BRANCHES=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("testdriver/regression-")) | select(.name | contains("-${{ github.run_id }}-${{ github.run_attempt }}")) | .name')
-          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+          # Get all branches with the pattern testdriver/regression-{test_name}-{run_id}-{attempt}
+          # Need to iterate through each test name in markdown_file_names array and find matching branches
+          BRANCHES_JSON='[]'
+          for TEST_NAME in $(echo '${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}' | jq -r '.[]'); do
+            BRANCH=$(gh api repos/${{ github.repository }}/branches --jq ".[] | select(.name == \"testdriver/regression-${TEST_NAME}-${{ github.run_id }}-${{ github.run_attempt }}\") | .name")
+            if [ ! -z "$BRANCH" ]; then
+              BRANCHES_JSON=$(echo $BRANCHES_JSON | jq ". + [\"$BRANCH\"]")
+            fi
+          done
+          echo "branches=$BRANCHES_JSON" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
