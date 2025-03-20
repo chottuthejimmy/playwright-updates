@@ -8,6 +8,11 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      base-branch:
+        type: string
+        required: true
+        description: The branch name of the exploratory run
     secrets:
       key:
         required: true
@@ -17,7 +22,28 @@ on:
         description: The GitHub token
 
 jobs:
+
+  gather-markdown-file-names:
+    name: Gather branch names
+    runs-on: ubuntu-latest
+    outputs:
+      markdown_file_names: ${{ steps.markdown_list.outputs.files }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.base-branch }}
+  
+      - name: Find all markdown files and extract filenames
+        id: markdown_list
+        run: |
+          FILES=$(ls ./testdriver/generate/*.md)
+          FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
+          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
+          echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
+
   find-regression-branches:
+    needs: gather-markdown-file-names
     runs-on: ubuntu-latest
     outputs:
       regression_branches: ${{ steps.get_branches.outputs.branches }}
@@ -32,7 +58,7 @@ jobs:
       - name: Get Regression Branches
         id: get_branches
         run: |
-          # Get all branches with the pattern testdriver/regression-*-${{ github.run_id }}-${{ github.run_attempt }}
+          # Get all branches with the pattern testdriver/regression-${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}-${{ github.run_id }}-${{ github.run_attempt }}
           BRANCHES=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("testdriver/regression-")) | select(.name | contains("-${{ github.run_id }}-${{ github.run_attempt }}")) | .name')
           echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
 
@@ -50,29 +76,13 @@ jobs:
           ref: ${{ matrix.branch }}
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
-
       - name: Get test file name
         id: get_test_file
         run: |
-          # Extract the test file name from the branch name
-          # The format is testdriver/regression-TESTNAME-RUNID-ATTEMPT
-          BRANCH_NAME="${{ matrix.branch }}"
-          TEST_NAME=$(echo $BRANCH_NAME | sed -E 's/testdriver\/regression-([^-]+)-[0-9]+-[0-9]+/\1/')
+          # Extract test name from branch name (format: testdriver/regression-{test_name}-{run_id}-{attempt})
+          TEST_NAME=$(echo "${{ matrix.branch }}" | sed -E 's/testdriver\/regression-([^-]+).*/\1/')
           echo "test_name=$TEST_NAME" >> $GITHUB_OUTPUT
-
-          # Find the corresponding YML file in the testdriver directory
-          YML_FILE=$(find ./testdriver -name "*.yml" -type f | head -n 1)
-          if [ -n "$YML_FILE" ]; then
-            YML_BASENAME=$(basename "$YML_FILE")
-            echo "yml_file=$YML_BASENAME" >> $GITHUB_OUTPUT
-          else
-            echo "No YML file found in testdriver directory"
-            exit 1
-          fi
-
-          # Generate branch name for playwright tests
-          PLAYWRIGHT_BRANCH="testdriver/playwright-$TEST_NAME-${{ github.run_id }}-${{ github.run_attempt }}"
-          echo "branch_name=$PLAYWRIGHT_BRANCH" >> $GITHUB_OUTPUT
+          echo "yml_file=$TEST_NAME.yml" >> $GITHUB_OUTPUT
 
       - uses: testdriverai/action@main
         with:
