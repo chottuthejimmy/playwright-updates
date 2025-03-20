@@ -1,0 +1,27 @@
+version: 4.2.20
+session: 67dc19b879861c0eef41b263
+steps:
+  - prompt: Click on the search icon in the top navigation.
+    commands:
+      - command: hover-image
+        description: search icon in the top navigation
+        action: click
+  - prompt: Enter a search term.
+    commands:
+      - command: hover-text
+        text: Search or ask anything
+        description: search input field
+        action: click
+      - command: type
+        text: real-time apps
+  - prompt: Submit the search.
+    commands:
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: >-
+      Assert that search results are displayed.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: Real-time Technology the Lifeblood of Popular Apps is visible
