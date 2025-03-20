@@ -24,10 +24,6 @@ on:
       GH_TOKEN:
         required: true
         description: The GitHub token
-    outputs:
-      pr-branches:
-        description: JSON array of created PR branch names
-        value: ${{ jobs.test.outputs.pr-branches }}
 
 jobs:
   gather-markdown-files:
@@ -57,8 +53,6 @@ jobs:
       matrix:
         markdown: ${{ fromJson(needs.gather-markdown-files.outputs.markdown_files) }}
       fail-fast: false
-    outputs:
-      pr-branches: ${{ steps.save-branches.outputs.branches }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -87,15 +81,6 @@ jobs:
             ${{ env.MARKDOWN_CONTENT }}  # Use the content of the file from the environment
             1. /summarize
           prerun: |
-
-            echo "Debug: Current directory"
-            pwd
-            echo "Current branch"
-            echo ${{ github.ref }}
-            echo "Files inside"
-            Get-ChildItem -Force
-            echo "Files in subdirectories"
-            Get-ChildItem -Recurse -Force
             
             cd $env:TEMP
             npm init -y
@@ -110,8 +95,3 @@ jobs:
         env:
           FORCE_COLOR: "3"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Save branch name
-        id: save-branches
-        run: |
-          BRANCH="testdriver/regression-${{ matrix.markdown }}-${{ github.run_id }}-${{ github.run_attempt }}"
-          echo "branches=[\"$BRANCH\"]" >> $GITHUB_OUTPUT

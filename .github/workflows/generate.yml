@@ -31,12 +31,9 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   generate-playwright:
-    name: TestDriver.ai / Generate / Playwright
+    name: TestDriver.ai / Generate / Playwright Tests
     needs: generate-regression
-    uses: ./.github/workflows/generate-playwright.yml
-    with:
-      pr-branches: ${{ needs.generate-regression.outputs.pr-branches }}
-      website-url: ${{ vars.TESTDRIVER_WEBSITE }}
+    uses: ./.github/workflows/trigger-playwright-generation.yml
     secrets:
       key: ${{ secrets.TESTDRIVER_API_KEY }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,103 @@
+name: TestDriver.ai / Trigger / Playwright Generation
+
+permissions:
+  actions: read
+  contents: write
+  statuses: write
+  pull-requests: write
+
+on:
+  workflow_call:
+    secrets:
+      key:
+        required: true
+        description: The TestDriver API key
+      GH_TOKEN:
+        required: true
+        description: The GitHub token
+
+jobs:
+  find-regression-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      regression_branches: ${{ steps.get_branches.outputs.branches }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub CLI
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+
+      - name: Get Regression Branches
+        id: get_branches
+        run: |
+          # Get all branches with the pattern testdriver/regression-*-${{ github.run_id }}-${{ github.run_attempt }}
+          BRANCHES=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("testdriver/regression-")) | select(.name | contains("-${{ github.run_id }}-${{ github.run_attempt }}")) | .name')
+          BRANCHES_JSON=$(echo "$BRANCHES" | jq -R -s -c 'split("\n")[:-1]')
+          echo "branches=$BRANCHES_JSON" >> $GITHUB_OUTPUT
+
+  generate-playwright-tests:
+    needs: find-regression-branches
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
+      fail-fast: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get test file name
+        id: get_test_file
+        run: |
+          # Extract the test file name from the branch name
+          # The format is testdriver/regression-TESTNAME-RUNID-ATTEMPT
+          BRANCH_NAME="${{ matrix.branch }}"
+          TEST_NAME=$(echo $BRANCH_NAME | sed -E 's/testdriver\/regression-([^-]+)-[0-9]+-[0-9]+/\1/')
+          echo "test_name=$TEST_NAME" >> $GITHUB_OUTPUT
+
+          # Find the corresponding YML file in the testdriver directory
+          YML_FILE=$(find ./testdriver -name "*.yml" -type f | head -n 1)
+          if [ -n "$YML_FILE" ]; then
+            YML_BASENAME=$(basename "$YML_FILE")
+            echo "yml_file=$YML_BASENAME" >> $GITHUB_OUTPUT
+          else
+            echo "No YML file found in testdriver directory"
+            exit 1
+          fi
+
+          # Generate branch name for playwright tests
+          PLAYWRIGHT_BRANCH="testdriver/playwright-$TEST_NAME-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "branch_name=$PLAYWRIGHT_BRANCH" >> $GITHUB_OUTPUT
+
+      - uses: testdriverai/action@main
+        with:
+          key: ${{ secrets.key }}
+          prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
+          create-pr: true
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.get_test_file.outputs.test_name }}"
+          pr-branch: testdriver/playwright-${{ steps.get_test_file.outputs.test_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-test-filename: ${{ steps.get_test_file.outputs.test_name }}.test.js
+          prerun: |
+
+            echo "Step 1: Installing Playwright globally"
+            npm install playwright -g
+
+            echo "Step 3: Installing Playwright dependencies"
+            playwright install --with-deps chromium
+
+            echo "Step 4: Generating Playwright script"
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.get_test_file.outputs.test_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
+            Write-Output "Started Playwright with PID: $($process.Id)"
+
+            echo "Step 5: Completed"
+            exit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_COLOR: "3"
