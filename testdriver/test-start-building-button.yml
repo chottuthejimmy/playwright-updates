@@ -1,0 +1,19 @@
+version: 4.2.20
+session: 67dc19b579861c0eef41b261
+steps:
+  - prompt: Click the "Start Building" button.
+    commands:
+      - command: hover-text
+        text: Start Building
+        description: start building button on the webpage
+        action: click
+  - prompt: Assert that the user is directed to the getting started page.
+    commands:
+      - command: assert
+        expect: the page contains "Register for free"
+  - prompt: >-
+      Assert there are no errors displayed on the page.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: the page does not contain "Error" or "404"
