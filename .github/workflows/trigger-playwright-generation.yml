@@ -27,8 +27,15 @@ on:
         type: string
         required: true
         description: The branch name of the exploratory run
+      run-id:
+        type: string
+        required: true
+        description: The run id of the exploratory run
+      run-attempt:
+        type: string
+        required: true
     secrets:
-      key:
+      TESTDRIVER_API_KEY:
         required: true
         description: The TestDriver API key
       GH_TOKEN:
@@ -105,7 +112,7 @@ jobs:
 
       - uses: testdriverai/action@main
         with:
-          key: ${{ secrets.key }}
+          key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
           create-pr: true
           pr-base: main
