@@ -1,0 +1,33 @@
+version: 4.2.20
+session: 67dc0023559da55d39a31f18
+steps:
+  - prompt: Focus the browser window.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+  - prompt: Click on "Start Building."
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Start Building
+        description: button to start building on the webpage
+        action: click
+  - prompt: Assert that the user is directed to the correct page.
+    commands:
+      - command: assert
+        expect: the URL is admin.pubnub.com/register
+  - prompt: Navigate back to the homepage.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: press-keys
+        keys:
+          - alt
+          - left
+  - prompt: >-
+      Assert that the homepage loads without errors.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: the "Start Building" button is visible on the homepage
