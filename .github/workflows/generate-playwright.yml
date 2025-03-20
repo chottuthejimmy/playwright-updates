@@ -49,6 +49,16 @@ jobs:
           pr-branch: testdriver/regression-test-developers-link-13953073675-1
           pr-test-filename: test-developers-link.test.js
           prerun: |
+
+            echo "Debug: Current directory"
+            pwd
+            echo "Current branch"
+            echo ${{ github.ref }}
+            echo "Files inside"
+            ls -la
+            echo "Files in subdirectories"
+            ls -la -R
+
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
 
