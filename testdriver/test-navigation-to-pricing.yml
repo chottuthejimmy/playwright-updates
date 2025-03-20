@@ -1,0 +1,17 @@
+version: 4.2.20
+session: 67dbc7c579861c0eef41af07
+steps:
+  - prompt: Click on "Pricing" in the navigation bar.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Pricing
+        description: pricing link in the navigation bar
+        action: click
+  - prompt: >-
+      Assert that the Pricing page is loaded successfully.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: Pricing and Support is visible on the page
