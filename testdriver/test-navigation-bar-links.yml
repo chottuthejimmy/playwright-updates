@@ -1,0 +1,27 @@
+version: 4.2.20
+session: 67dc19b979861c0eef41b265
+steps:
+  - prompt: >-
+      Click on each link in the navigation bar  # Use the content of the file
+      from the environment
+    commands:
+      - command: hover-text
+        text: Products
+        description: navigation link for Products
+        action: click
+      - command: hover-text
+        text: Solutions
+        description: navigation link for Solutions
+        action: click
+      - command: hover-text
+        text: Pricing
+        description: navigation link for Pricing
+        action: click
+      - command: hover-text
+        text: Developers
+        description: navigation link for Developers
+        action: click
+      - command: hover-text
+        text: Resources
+        description: navigation link for Resources
+        action: click
