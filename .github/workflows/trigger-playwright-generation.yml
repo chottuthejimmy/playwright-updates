@@ -38,7 +38,7 @@ on:
 jobs:
 
   gather-markdown-file-names:
-    name: Gather branch names
+    name: Gather test names
     runs-on: ubuntu-latest
     outputs:
       markdown_file_names: ${{ steps.markdown_list.outputs.files }}
@@ -57,6 +57,7 @@ jobs:
           echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
 
   find-regression-branches:
+    name: Find regression branches
     needs: gather-markdown-file-names
     runs-on: ubuntu-latest
     outputs:
@@ -64,10 +65,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup GitHub CLI
-        run: |
-          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
 
       - name: Get Regression Branches
         id: get_branches
