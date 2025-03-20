@@ -1,0 +1,27 @@
+version: 4.2.20
+session: 67dc05d679861c0eef41b133
+steps:
+  - prompt: Click on the search icon.
+    commands:
+      - command: hover-image
+        description: search icon in the webpage content
+        action: click
+  - prompt: Type a query into the search field.
+    commands:
+      - command: hover-text
+        text: Search or ask anything
+        description: search input field
+        action: click
+      - command: type
+        text: real-time data platforms
+  - prompt: Press the "Enter" key.
+    commands:
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: >-
+      Assert that search results are displayed.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: search results are displayed
