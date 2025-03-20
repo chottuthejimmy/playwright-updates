@@ -33,6 +33,7 @@ jobs:
   generate-playwright:
     name: TestDriver.ai / Generate / Playwright Tests
     needs: generate-regression
+    if: always()
     uses: ./.github/workflows/trigger-playwright-generation.yml
     secrets:
       key: ${{ secrets.TESTDRIVER_API_KEY }}
