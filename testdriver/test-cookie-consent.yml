@@ -1,0 +1,26 @@
+version: 4.2.20
+session: 67dc002a79861c0eef41b002
+steps:
+  - prompt: Click on the "Accept Cookies" button in the cookie consent banner.
+    commands:
+      - command: focus-application
+        name: Google Chrome
+      - command: hover-text
+        text: Accept Cookies
+        description: accept cookies button in the cookie consent banner at the bottom right
+        action: click
+  - prompt: Assert that the banner disappears after clicking.
+    commands:
+      - command: assert
+        expect: the "Accept Cookies" button is not visible
+  - prompt: Refresh the page.
+    commands:
+      - command: press-keys
+        keys:
+          - f5
+  - prompt: >-
+      Assert that the cookie banner does not reappear.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: the "Accept Cookies" button is not visible
