@@ -80,7 +80,7 @@ jobs:
           # Need to iterate through each test name in markdown_file_names array and find matching branches
           BRANCHES_JSON='[]'
           for TEST_NAME in $(echo '${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}' | jq -r '.[]'); do
-            BRANCH=$(gh api repos/${{ github.repository }}/branches --jq ".[] | select(.name == \"testdriver/regression-${TEST_NAME}-${{ inputs.run_id }}-${{ inputs.run_attempt }}\") | .name")
+            BRANCH=$(gh api repos/${{ github.repository }}/branches --jq ".[] | select(.name == \"testdriver/regression-${TEST_NAME}-13973697183-1\") | .name")
             if [ ! -z "$BRANCH" ]; then
               BRANCHES_JSON=$(echo $BRANCHES_JSON | jq ". + [\"$BRANCH\"]")
             fi
@@ -117,7 +117,7 @@ jobs:
           create-pr: true
           pr-base: main
           pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.get_test_file.outputs.test_name }}"
-          pr-branch: testdriver/playwright-${{ steps.get_test_file.outputs.test_name }}-${{ inputs.run_id }}-${{ inputs.run_attempt }}
+          pr-branch: testdriver/playwright-${{ steps.get_test_file.outputs.test_name }}-13973697183-1
           pr-test-filename: ${{ steps.get_test_file.outputs.test_name }}.test.js
           prerun: |
 
