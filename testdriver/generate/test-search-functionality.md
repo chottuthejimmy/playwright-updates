@@ -1,4 +1,5 @@
-1. Click on the search icon.
-2. Type a query into the search bar.
-3. Press enter to initiate the search.
-4. Assert that search results are displayed relevant to the query.
+1. Focus the browser window.
+2. Click on the search icon.
+3. Enter the query "real-time apps."
+4. Press Enter.
+5. Assert that the search results are displayed correctly.
