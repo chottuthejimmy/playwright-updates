@@ -72,6 +72,8 @@ jobs:
           # Get all branches with the pattern testdriver/regression-${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}-${{ github.run_id }}-${{ github.run_attempt }}
           BRANCHES=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("testdriver/regression-")) | select(.name | contains("-${{ github.run_id }}-${{ github.run_attempt }}")) | .name')
           echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   generate-playwright-tests:
     needs: find-regression-branches
@@ -85,12 +87,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ matrix.branch }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+
       - name: Get test file name
         id: get_test_file
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Extract test name from branch name (format: testdriver/regression-{test_name}-{run_id}-{attempt})
           TEST_NAME=$(echo "${{ matrix.branch }}" | sed -E 's/testdriver\/regression-([^-]+).*/\1/')
