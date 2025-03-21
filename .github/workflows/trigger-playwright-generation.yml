@@ -12,16 +12,20 @@ jobs:
   generate-playwright-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base branch
+      - name: Checkout out repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ inputs.base_branch }}
+          ref: ${{ github.event.inputs.base_branch }}
 
       - name: Extract test file
         id: extract_test_file
         run: |
           TEST_FILE=$(ls ./testdriver/*.yml | head -n 1 | xargs basename -s .yml)
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
+      - name: Extract current branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
       - name: Trigger Playwright Generation
         uses: testdriverai/action@main
