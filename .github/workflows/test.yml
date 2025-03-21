@@ -10,10 +10,11 @@ on:
       run_id:
         description: 'The run ID to search for'
         required: true
+        default: '13973697183'
       attempt:
         description: 'The attempt number to search for'
         required: true
-
+        default: '1'
 jobs:
   find-regression-branches:
     runs-on: ubuntu-latest
@@ -68,8 +69,9 @@ jobs:
           done
           # Remove duplicates and format as a comma-separated list
           matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
-          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
-          echo "Matching branches: $matching_branches"
+          # echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
+          echo "::set-output name=regression_branches::$matching_branches"
+          # echo "Matching branches: $matching_branches"
 
   generate-playwright-tests:
     needs: find-regression-branches
