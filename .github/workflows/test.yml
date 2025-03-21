@@ -41,7 +41,8 @@ jobs:
             echo "Searching for remote branches containing: $file"
             # List remote branches that match the file name substring.
             # Note: 'origin/' is removed to get the clean branch name.
-            branch_matches=$(git branch -r | grep "$file" | sed 's|origin/||' || true)
+            # Use grep with word boundaries to find file name anywhere in branch name
+            branch_matches=$(git branch -r | grep -E ".*${file}.*" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
               echo "Matches found for '$file':"
               echo "$branch_matches"
