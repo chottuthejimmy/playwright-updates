@@ -1,4 +1,4 @@
-name: Find Matching Branches
+name: Find and Generate Playwright Tests
 
 on:
   workflow_dispatch:
@@ -10,15 +10,15 @@ on:
       run_id:
         description: 'The run ID to search for'
         required: true
-        default: '13973697183'
       attempt:
         description: 'The attempt number to search for'
         required: true
-        default: '1'
 
 jobs:
-  find-matching-branches:
+  find-regression-branches:
     runs-on: ubuntu-latest
+    outputs:
+      regression_branches: ${{ steps.matching.outputs.regression_branches }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v2
@@ -68,9 +68,50 @@ jobs:
           done
           # Remove duplicates and format as a comma-separated list
           matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
-          echo "matching_branches=$matching_branches" >> $GITHUB_OUTPUT
+          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
           echo "Matching branches: $matching_branches"
 
-      - name: Output matching branches
+  generate-playwright-tests:
+    needs: find-regression-branches
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
+      fail-fast: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Get test file name
+        id: get_test_file
         run: |
-          echo "The matching branches are: ${{ steps.matching.outputs.matching_branches }}"
+          # Extract test name from branch name (format: testdriver/regression-{test_name}-{run_id}-{attempt})
+          TEST_NAME=$(echo "${{ matrix.branch }}" | sed -E 's/testdriver\/regression-([^-]+)-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}$/\1/')
+          echo "test_name=$TEST_NAME" >> $GITHUB_OUTPUT
+          echo "yml_file=$TEST_NAME.yml" >> $GITHUB_OUTPUT
+
+      - uses: testdriverai/action@main
+        with:
+          key: ${{ secrets.TESTDRIVER_API_KEY }}
+          prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
+          create-pr: true
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.get_test_file.outputs.test_name }}"
+          pr-branch: testdriver/playwright-${{ steps.get_test_file.outputs.test_name }}-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}"
+          pr-test-filename: ${{ steps.get_test_file.outputs.test_name }}.test.js
+          prerun: |
+            echo "Step 1: Installing Playwright globally"
+            npm install playwright -g
+            echo "Step 3: Installing Playwright dependencies"
+            playwright install --with-deps chromium
+            echo "Step 4: Generating Playwright script"
+            process=$(npx playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.get_test_file.outputs.test_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }})
+            echo "Generated Playwright script"
+            echo "$process"
+            echo "Step 5: Completed"
+            exit 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_COLOR: "3"
