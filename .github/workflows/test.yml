@@ -68,10 +68,10 @@ jobs:
             fi
           done
           # Remove duplicates and format as a comma-separated list
-          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
-          # echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
-          echo "::set-output name=regression_branches::$matching_branches"
-          # echo "Matching branches: $matching_branches"
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
+          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
+          # echo "::set-output name=regression_branches::$matching_branches"
+          echo "Matching branches: $matching_branches"
 
   generate-playwright-tests:
     needs: find-regression-branches
