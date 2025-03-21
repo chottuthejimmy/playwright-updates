@@ -1,137 +1,49 @@
-name: TestDriver.ai / Trigger / Playwright Generation
-
-permissions:
-  actions: read
-  contents: write
-  statuses: write
-  pull-requests: write
+name: Trigger Playwright Generation
 
 on:
   workflow_dispatch:
     inputs:
-      base-branch:
-        type: string
+      base_branch:
+        description: 'The base branch to search in'
         required: true
-        description: The branch name of the exploratory run
-      run-id:
-        type: string
-        required: false
-        description: The run id of the exploratory run
-      run-attempt:
-        type: string
-        required: false
-        description: The run attempt of the exploratory run
-  workflow_call:
-    inputs:
-      base-branch:
-        type: string
-        required: true
-        description: The branch name of the exploratory run
-      run-id:
-        type: string
-        required: true
-        description: The run id of the exploratory run
-      run-attempt:
-        type: string
-        required: true
-    secrets:
-      TESTDRIVER_API_KEY:
-        required: true
-        description: The TestDriver API key
-      GH_TOKEN:
-        required: true
-        description: The GitHub token
+        default: 'testdriver/regression-test-try-for-free-button-13973697183-1'
 
 jobs:
-  gather-markdown-file-names:
-    name: Gather test names
+  generate-playwright-tests:
     runs-on: ubuntu-latest
-    outputs:
-      markdown_file_names: ${{ steps.markdown_list.outputs.files }}
     steps:
-      - name: Check out repository
+      - name: Checkout base branch
         uses: actions/checkout@v2
         with:
-          ref: ${{ inputs.base-branch }}
+          ref: ${{ inputs.base_branch }}
 
-      - name: Find all markdown files and extract filenames
-        id: markdown_list
+      - name: Extract test file
+        id: extract_test_file
         run: |
-          FILES=$(ls ./testdriver/generate/*.md)
-          FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
-          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
-          echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
+          TEST_FILE=$(ls ./testdriver/*.yml | head -n 1 | xargs basename -s .yml)
+          echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
 
-  find-regression-branches:
-    name: Find regression branches
-    needs: gather-markdown-file-names
-    runs-on: ubuntu-latest
-    outputs:
-      regression_branches: ${{ steps.get_branches.outputs.branches }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Get Regression Branches
-        id: get_branches
-        run: |
-          # Get all branches with the pattern testdriver/regression-{test_name}-{run_id}-{attempt}
-          # Iterate through each test name from the markdown_file_names JSON array
-          BRANCHES_JSON='[]'
-          for TEST_NAME in $(echo "${{ needs.gather-markdown-file-names.outputs.markdown_file_names }}" | jq -r '.[]'); do
-            BRANCH=$(gh api repos/${{ github.repository }}/branches --jq ".[] | select(.name == \"testdriver/regression-${TEST_NAME}-13973697183-1\") | .name")
-            if [ ! -z "$BRANCH" ]; then
-              BRANCHES_JSON=$(echo "$BRANCHES_JSON" | jq --arg branch "$BRANCH" '. + [$branch]')
-            fi
-          done
-          echo "branches=$BRANCHES_JSON" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  generate-playwright-tests:
-    needs: find-regression-branches
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
-      fail-fast: false
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ matrix.branch }}
-
-      - name: Get test file name
-        id: get_test_file
-        run: |
-          # Extract test name from branch name (format: testdriver/regression-{test_name}-{run_id}-{attempt})
-          TEST_NAME=$(echo "${{ matrix.branch }}" | sed -E 's/testdriver\/regression-([^-]+).*/\1/')
-          echo "test_name=$TEST_NAME" >> $GITHUB_OUTPUT
-          echo "yml_file=$TEST_NAME.yml" >> $GITHUB_OUTPUT
-
-      - uses: testdriverai/action@main
+      - name: Trigger Playwright Generation
+        uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
-          prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
+          prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}.yml
           create-pr: true
           pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.get_test_file.outputs.test_name }}"
-          pr-branch: testdriver/playwright-${{ steps.get_test_file.outputs.test_name }}-13973697183-1
-          pr-test-filename: ${{ steps.get_test_file.outputs.test_name }}.test.js
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract_test_file.outputs.test_file }}"
+          pr-branch: testdriver/playwright-${{ steps.extract_test_file.outputs.test_file }}
+          pr-test-filename: playwright.test.js
           prerun: |
-
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
-
             echo "Step 3: Installing Playwright dependencies"
             playwright install --with-deps chromium
-
             echo "Step 4: Generating Playwright script"
-            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.get_test_file.outputs.test_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
-            Write-Output "Started Playwright with PID: $($process.Id)"
-
+            process=$(npx playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/playwright.test.js ${{ vars.TESTDRIVER_WEBSITE }})
+            echo "Generated Playwright script"
+            echo "$process"
             echo "Step 5: Completed"
-            exit
+            exit 0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FORCE_COLOR: "3"
