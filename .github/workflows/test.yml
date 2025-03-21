@@ -6,7 +6,7 @@ on:
       base_branch:
         description: 'The base branch to search in'
         required: true
-        default: 'main'
+        default: 'testdriver/exploratory-13973697183-1'
 
 jobs:
   find-matching-branches:
@@ -33,8 +33,8 @@ jobs:
         id: get_branches
         run: |
           git fetch --all
-          git branch -r
-          echo "branches=$(git branch -r)" >> $GITHUB_OUTPUT
+          branches=$(git branch -r | tr '\n' ',')
+          echo "branches=${branches%,}" >> $GITHUB_OUTPUT
 
       - name: Find branches with file name substrings
         id: matching
