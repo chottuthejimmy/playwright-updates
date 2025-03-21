@@ -22,10 +22,12 @@ jobs:
         run: |
           TEST_FILE=$(ls ./testdriver/*.yml | head -n 1 | xargs basename -s .yml)
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
+
       - name: Extract current branch name
         shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "Current branch name: $BRANCH_NAME"
 
       - name: Trigger Playwright Generation
         uses: testdriverai/action@main
