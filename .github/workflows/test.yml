@@ -28,6 +28,13 @@ jobs:
           # Convert newline-separated file names into a comma-separated list
           file_list=$(echo "$file_names" | paste -sd "," -)
           echo "file_list=$file_list" >> $GITHUB_OUTPUT
+    
+      - name: Get all the branches
+        id: get_branches
+        run: |
+          git fetch --all
+          git branch -r
+          echo "branches=$(git branch -r)" >> $GITHUB_OUTPUT
 
       - name: Find branches with file name substrings
         id: matching
