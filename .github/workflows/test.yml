@@ -7,6 +7,14 @@ on:
         description: 'The base branch to search in'
         required: true
         default: 'testdriver/exploratory-13973697183-1'
+      run_id:
+        description: 'The run ID to search for'
+        required: true
+        default: '13973697183'
+      attempt:
+        description: 'The attempt number to search for'
+        required: true
+        default: '1'
 
 jobs:
   find-matching-branches:
@@ -28,28 +36,30 @@ jobs:
           # Convert newline-separated file names into a comma-separated list
           file_list=$(echo "$file_names" | paste -sd "," -)
           echo "file_list=$file_list" >> $GITHUB_OUTPUT
-    
+
       - name: Get all the branches
         id: get_branches
         run: |
           git fetch --all
-          branches=$(git branch -r | tr '\n' ',')
-          echo "branches=${branches%,}" >> $GITHUB_OUTPUT
+          git branch -r
 
       - name: Find branches with file name substrings
         id: matching
         run: |
+          run_id="${{ github.event.inputs.run_id }}"
+          attempt="${{ github.event.inputs.attempt }}"
           # Convert the comma-separated list back to newlines for processing
           file_names=$(echo "${{ steps.extract.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
           echo "$file_names"
           matches=""
           for file in $file_names; do
-            echo "Searching for remote branches containing: $file"
-            # List remote branches that match the file name substring.
+            echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
+            # List remote branches that match the exact pattern.
             # Note: 'origin/' is removed to get the clean branch name.
-            # Use grep with word boundaries to find file name anywhere in branch name
-            branch_matches=$(git branch -r | grep -E ".*${file}.*" | sed 's|origin/||' || true)
+            # Use grep with exact matching for the pattern
+            pattern="testdriver/regression-${file}-${run_id}-${attempt}"
+            branch_matches=$(git branch -r | grep --fixed-strings "origin/$pattern" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
               echo "Matches found for '$file':"
               echo "$branch_matches"
