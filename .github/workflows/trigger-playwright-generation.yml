@@ -39,10 +39,7 @@ jobs:
             echo "Step 3: Installing Playwright dependencies"
             playwright install --with-deps chromium
             echo "Step 4: Generating Playwright script"
-            process=$(npx playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/playwright.test.js ${{ vars.TESTDRIVER_WEBSITE }})
-            echo "Generated Playwright script"
-            echo "$process"
-            echo "Step 5: Completed"
+            npx playwright codegen --target playwright-test --viewport-size="1920,1080" -o testdriver/playwright.test.js "${{ vars.TESTDRIVER_WEBSITE }}"
             exit 0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
