@@ -21,6 +21,7 @@ jobs:
         id: extract_test_file
         run: |
           TEST_FILE=$(ls ./testdriver/*.yml)
+          TEST_FILE=$(basename $TEST_FILE .yml)
           echo "TEST_FILE=$TEST_FILE"
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
 
@@ -33,13 +34,16 @@ jobs:
         uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
-          prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}
+          prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}.yml
           create-pr: true
           pr-base: main
           pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract_test_file.outputs.test_file }}"
           pr-branch: testdriver/playwright-${{ steps.extract_test_file.outputs.test_file }}
           pr-test-filename: playwright.test.js
           prerun: |
+            Write-Output "Current directory: $(Get-Location)"
+            Write-Output "files in current directory: $(Get-ChildItem -Force)"
+            Write-Output "files in testdriver directory: $(Get-ChildItem -Force ./testdriver/)"
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
             echo "Step 3: Installing Playwright dependencies"
