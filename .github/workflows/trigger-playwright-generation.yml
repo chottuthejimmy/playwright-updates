@@ -26,7 +26,7 @@ jobs:
       - name: List files in base branch
         run: |
           echo "Listing files in branch: ${{ github.event.inputs.base_branch }}"
-          ls -al
+          ls -al ./testdriver/
 
       - name: Trigger Playwright Generation
         uses: testdriverai/action@main
