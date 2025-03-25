@@ -20,15 +20,13 @@ jobs:
       - name: Extract test file
         id: extract_test_file
         run: |
-          echo "Branch name: ${{ github.event.inputs.base_branch }}"
           TEST_FILE=$(ls ./testdriver/*.yml | head -n 1 | xargs basename -s .yml)
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
 
-      - name: Extract current branch name
-        shell: bash
+      - name: List files in base branch
         run: |
-          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-          echo "Current branch name: $BRANCH_NAME"
+          echo "Listing files in branch: ${{ github.event.inputs.base_branch }}"
+          ls -al
 
       - name: Trigger Playwright Generation
         uses: testdriverai/action@main
