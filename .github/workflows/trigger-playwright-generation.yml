@@ -21,6 +21,7 @@ jobs:
         id: extract_test_file
         run: |
           TEST_FILE=$(ls ./testdriver/*.yml | head -n 1 | xargs basename -s .yml)
+          echo "TEST_FILE=$TEST_FILE"
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
 
       - name: List files in base branch
