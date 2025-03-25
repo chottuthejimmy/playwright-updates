@@ -55,9 +55,6 @@ jobs:
           prompt: 1. /run testdriver/${{ matrix.test }} 
           prerun: |
             cd $env:TEMP
-            Write-Output "Current directory: $(Get-Location)"
-            Write-Output "files in current directory: $(Get-ChildItem -Force)"
-            Write-Output "files in testdriver directory: $(Get-ChildItem -Force ./testdriver/)"
             npm init -y
             npm install dashcam-chrome
             Start-Process "C:/Program Files/Google/Chrome/Application/chrome.exe" -ArgumentList "--start-maximized", "--load-extension=$(pwd)/node_modules/dashcam-chrome/build", "${{ vars.TESTDRIVER_WEBSITE }}"
