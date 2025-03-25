@@ -20,6 +20,7 @@ jobs:
       - name: Extract test file
         id: extract_test_file
         run: |
+          echo "Branch name: ${{ github.event.inputs.base_branch }}"
           TEST_FILE=$(ls ./testdriver/*.yml | head -n 1 | xargs basename -s .yml)
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
 
