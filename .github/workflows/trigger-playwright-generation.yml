@@ -42,10 +42,10 @@ jobs:
           # pr-test-filename: playwright.test.js
           prerun: |
             cd $env:TEMP
-            Write-Output "Current directory: $(Get-Location)"
-            Write-Output "files in current directory: $(Get-ChildItem -Force)"
-            Write-Output "files in testdriver directory: $(Get-ChildItem -Force ./testdriver/)"
-            # echo "Step 1: Installing Playwright globally"
+            # Write-Output "Current directory: $(Get-Location)"
+            # Write-Output "files in current directory: $(Get-ChildItem -Force)"
+            # Write-Output "files in testdriver directory: $(Get-ChildItem -Force ./testdriver/)"
+            # # echo "Step 1: Installing Playwright globally"
             # npm install playwright -g
             # echo "Step 3: Installing Playwright dependencies"
             # playwright install --with-deps chromium
