@@ -35,22 +35,27 @@ jobs:
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}.yml
-          create-pr: true
-          pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract_test_file.outputs.test_file }}"
-          pr-branch: testdriver/playwright-${{ steps.extract_test_file.outputs.test_file }}
-          pr-test-filename: playwright.test.js
+          # create-pr: false
+          # pr-base: main
+          # pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract_test_file.outputs.test_file }}"
+          # pr-branch: testdriver/playwright-${{ steps.extract_test_file.outputs.test_file }}
+          # pr-test-filename: playwright.test.js
           prerun: |
+            cd $env:TEMP
             Write-Output "Current directory: $(Get-Location)"
             Write-Output "files in current directory: $(Get-ChildItem -Force)"
             Write-Output "files in testdriver directory: $(Get-ChildItem -Force ./testdriver/)"
-            echo "Step 1: Installing Playwright globally"
-            npm install playwright -g
-            echo "Step 3: Installing Playwright dependencies"
-            playwright install --with-deps chromium
-            echo "Step 4: Generating Playwright script"
-            npx playwright codegen --target playwright-test --viewport-size="1920,1080" -o testdriver/playwright.test.js "${{ vars.TESTDRIVER_WEBSITE }}"
-            exit 0
+            # echo "Step 1: Installing Playwright globally"
+            # npm install playwright -g
+            # echo "Step 3: Installing Playwright dependencies"
+            # playwright install --with-deps chromium
+            # echo "Step 4: Generating Playwright script"
+            # npx playwright codegen --target playwright-test --viewport-size="1920,1080" -o testdriver/playwright.test.js "${{ vars.TESTDRIVER_WEBSITE }}"
+            # exit 0
+            npm init -y
+            npm install dashcam-chrome
+            Start-Process "C:/Program Files/Google/Chrome/Application/chrome.exe" -ArgumentList "--start-maximized", "--load-extension=$(pwd)/node_modules/dashcam-chrome/build", "${{ vars.TESTDRIVER_WEBSITE }}"
+            exit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FORCE_COLOR: "3"
