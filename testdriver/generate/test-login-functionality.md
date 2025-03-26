@@ -1,4 +1,4 @@
-1. Click on the "Login" link in the navigation menu.
-2. Enter test credentials into the login form.
-3. Submit the form.
-4. Assert that the user is logged in or an error message is displayed for incorrect credentials.
+1. Click on the "LOGIN" link.
+2. Assert that the login form is displayed.
+3. Enter test credentials and click the login button.
+4. Assert that login is successful or an error message for failed login is displayed.
