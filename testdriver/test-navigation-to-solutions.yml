@@ -1,0 +1,19 @@
+version: 4.2.24
+session: 67e40252e166e87893ec248b
+steps:
+  - prompt: Click on "Solutions" in the navigation menu.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: solutions in the navigation menu
+        action: click
+  - prompt: Assert that the Solutions page loads successfully.
+    commands:
+      - command: assert
+        expect: the "BY USE CASE" text is visible on the Solutions page
+  - prompt: >-
+      Verify there are no visible errors.  # Use the content of the file from
+      the environment
+    commands:
+      - command: assert
+        expect: no error messages like "404" or "Error" are visible on the page
