@@ -1,0 +1,21 @@
+version: 4.2.24
+session: 67e3ca24e166e87893ec1ff7
+steps:
+  - prompt: Click on the "Contact sales" button.
+    commands:
+      - command: hover-text
+        text: Contact Sales
+        description: contact sales button in the top navigation bar
+        action: click
+  - prompt: Assert that the contact form or page appears.
+    commands:
+      - command: assert
+        expect: >-
+          the contact form is visible with fields like "First Name" and "Email
+          Address"
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: there are no error messages visible on the contact page
