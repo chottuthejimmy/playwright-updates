@@ -1,0 +1,23 @@
+version: 4.2.24
+session: 67e3ca37e166e87893ec2006
+steps:
+  - prompt: Hover over the "Solutions" link.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: link in the top navigation bar
+        action: hover
+  - prompt: Assert that a dropdown menu appears.
+    commands:
+      - command: assert
+        expect: dropdown menu is visible under the Solutions link
+  - prompt: >-
+      Click on an item in the dropdown and assert the navigation is correct.  #
+      Use the content of the file from the environment
+    commands:
+      - command: hover-text
+        text: Chat
+        description: item in the dropdown menu under Solutions
+        action: click
+      - command: assert
+        expect: navigated to the Chat page
