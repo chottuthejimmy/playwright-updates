@@ -1,0 +1,13 @@
+version: 4.2.24
+session: 67e3d59be166e87893ec2113
+steps:
+  - prompt: Click on the "Try for free" button.
+    commands:
+      - command: hover-text
+        text: Try for free
+        description: button in the top right of the header
+        action: click
+  - prompt: Assert that the free trial sign-up page loads.
+    commands:
+      - command: assert
+        expect: the free trial sign-up page with "Register for free" is visible
