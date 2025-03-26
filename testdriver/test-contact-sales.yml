@@ -1,0 +1,15 @@
+version: 4.2.24
+session: 67e40a92e166e87893ec25c2
+steps:
+  - prompt: Click the "Contact Sales" button in the header.
+    commands:
+      - command: hover-text
+        text: Contact Sales
+        description: contact sales button in the header
+        action: click
+  - prompt: Assert that the contact sales form appears.
+    commands:
+      - command: assert
+        expect: >-
+          the contact sales form is visible with fields like "First Name" and
+          "Last Name"
