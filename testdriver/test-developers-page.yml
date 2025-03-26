@@ -1,0 +1,19 @@
+version: 4.2.24
+session: 67e402193758c7759787bdc5
+steps:
+  - prompt: Click on "Developers" in the navigation menu.
+    commands:
+      - command: hover-text
+        text: Developers
+        description: developers link in the navigation menu
+        action: click
+  - prompt: Assert that the Developers page loads successfully.
+    commands:
+      - command: assert
+        expect: PubNub for Developers is visible on the page
+  - prompt: >-
+      Verify that developer resources are displayed.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: Documentation, Live Code Tour, and Tutorials are visible on the page
