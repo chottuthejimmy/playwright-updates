@@ -1,0 +1,37 @@
+version: 4.2.24
+session: 67e3ca233758c7759787b9b9
+steps:
+  - prompt: Click on the "Privacy Policy" link.
+    commands:
+      - command: hover-text
+        text: Privacy Policy
+        description: link to the privacy policy at the bottom of the page
+        action: click
+  - prompt: Assert that the privacy policy page is opened.
+    commands:
+      - command: assert
+        expect: the page displays "PubNub Privacy Policy"
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: there are no error messages like "404" or "Error" on the page
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the page does not display "404" or "Error" or "Not Found"
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the page does not display "404" or "Error" or "Not Found"
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the page does not display "404" or "Error" or "Not Found"
