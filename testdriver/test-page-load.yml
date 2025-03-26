@@ -1,0 +1,28 @@
+version: 4.2.24
+session: 67e40a4de166e87893ec255e
+steps:
+  - prompt: Open the website URL.
+    commands:
+      - command: hover-text
+        text: pubnub.com
+        description: address bar in Google Chrome
+        action: click
+      - command: type
+        text: https://example.com
+  - prompt: Open the website URL.
+    commands:
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: Assert that the homepage loads without errors.
+    commands:
+      - command: assert
+        expect: the text "Example Domain" is visible on the page
+  - prompt: >-
+      Verify page elements like images and text appear correctly.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: Example Domain text is visible
+      - command: assert
+        expect: More information link is visible
