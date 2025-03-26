@@ -1,60 +1,122 @@
 name: TestDriver.ai / Generate / Playwright
 
-on:
-  workflow_dispatch:
-
 permissions:
   actions: read
   contents: write
   statuses: write
   pull-requests: write
 
+on:
+  workflow_dispatch:
+    inputs:
+      base-branch:
+        type: string
+        required: true
+        description: The branch name of the exploratory run
+      run-id:
+        type: string
+        required: true
+        description: The run id of the exploratory run
+      run-attempt:
+        type: string
+        required: true
+        description: The run attempt of the exploratory run
+      website-url:
+        type: string
+        required: true
+        description: The URL of the website to test
+
+  workflow_call:
+    inputs:
+      website-url:
+        type: string
+        required: true
+        description: The URL of the website to test
+      base-branch:
+        type: string
+        required: true
+        description: The branch name of the exploratory run
+    secrets:
+      key:
+        required: true
+        description: The TestDriver API key
+      GH_TOKEN:
+        required: true
+        description: The GitHub token
+
 jobs:
-  gather-test-files:
-    name: Setup Test Matrix (./testdriver/*.yml)
+
+  find-regression-branches:
+    name: Find regression branches
     runs-on: ubuntu-latest
     outputs:
-      test_files: ${{ steps.test_list.outputs.files }}
+      regression_branches: ${{ steps.matching.outputs.regression_branches }}
+      test-name: ${{ steps.markdown_list.outputs.files }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
+      - name: Checkout base branch
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.ref }}
-      - name: Find all test files and extract filenames
-        id: test_list
+          ref: ${{ inputs.base-branch }}
+        
+      - name: Find all markdown files and extract file names
+        id: markdown_list
         run: |
-          FILES=$(ls ./testdriver/*.yml)
-          FILENAMES=$(basename -a $FILES)
-          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
-          echo "::set-output name=files::$FILES_JSON"
+            FILES=$(ls ./testdriver/generate/*.md)
+            FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
+            FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
+            echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
 
-  test:
-    needs: gather-test-files
+      - name: Find branches with file name substrings
+        id: matching
+        run: |
+          run_id="${{ github.event.inputs.run_id }}"
+          attempt="${{ github.event.inputs.attempt }}"
+          # Convert the comma-separated list back to newlines for processing
+          file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
+          echo "File names to search for in branch names:"
+          echo "$file_names"
+          matches=""
+          for file in $file_names; do
+            echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
+            # Use grep with exact matching for the pattern
+            pattern="testdriver/regression-${file}-${run_id}-${attempt}"
+            branch_matches=$(git branch -r | grep --fixed-strings "origin/$pattern" | sed 's|origin/||' || true)
+            if [ -n "$branch_matches" ]; then
+              echo "Matches found for '$file':"
+              echo "$branch_matches"
+              matches="$matches $branch_matches"
+            fi
+          done
+          # Remove duplicates and format as a JSON array
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
+          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
+          echo "Matching branches: $matching_branches"
+
+  generate-playwright-tests:
+    name: Generate Playwright Tests
+    needs: find-regression-branches
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test: ${{ fromJson(needs.gather-test-files.outputs.test_files) }}
+        branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
+        test-name: ${{ fromJson(needs.find-regression-branches.outputs.test-name) }}
       fail-fast: false
-    name: ${{ matrix.test }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.ref }}
+          ref: ${{ matrix.branch }}
 
-      - name: Display filename being tested
-        run: |
-          echo "Running job for file: ${{ matrix.test }}"
-      
       - uses: testdriverai/action@main
         with:
-          key: ${{ secrets.TESTDRIVER_API_KEY }}
-          prompt: 1. /run testdriver/${{ matrix.test }} 
+          key: ${{ secrets.key }}
+          branch: ${{ matrix.branch }}
+          prompt: 1. /run testdriver/${{ matrix.test-name }}.yml
           create-pr: true
           pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.markdown }}"
-          pr-branch: testdriver/regression-${{ matrix.markdown }}-${{ github.run_id }}-${{ github.run_attempt }}
-          pr-test-filename: ${{matrix.markdown}}.yml
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.test-name }}"
+          pr-branch: testdriver/playwright-${{ matrix.test-name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-test-filename: ${{ matrix.test-name }}.test.js
           prerun: |
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
@@ -63,11 +125,11 @@ jobs:
             playwright install --with-deps chromium
 
             echo "Step 4: Generating Playwright script"
-            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test -o testdriver/${{ matrix.test }}.spec.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
-            Write-Output "Started Playwright with PID: $($process.Id)"
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ matrix.test-name }}.test.js ${{ inputs.website-url }}" -PassThru
 
             echo "Step 5: Completed"
             exit
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FORCE_COLOR: "3"
