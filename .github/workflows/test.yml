@@ -88,12 +88,12 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
 
-      - name: Extract markdown file names
+      - name: Extract the test name
         id: extract
         run: |
-          echo "Searching for Markdown files in the testdriver/ folder..."
-          # Find all .md files, then remove the directory and extension
-          file_name=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
+          echo "Searching for yaml file in the testdriver/ folder..."
+          # Find all .yml files, then remove the directory and extension
+          file_name=$(find testdriver -type f -name "*.yml" | sed 's|.*/||; s/\.yml$//')
           echo "Extracted file name:"
           echo "$file_name"
           echo "file_name=$file_name" >> $GITHUB_OUTPUT
