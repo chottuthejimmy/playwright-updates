@@ -1,0 +1,19 @@
+version: 4.2.24
+session: 67e4024ae166e87893ec247b
+steps:
+  - prompt: Click on "Contact sales" button.
+    commands:
+      - command: hover-text
+        text: Contact sales
+        description: contact sales button in the main content area
+        action: click
+  - prompt: Assert that the contact form or contact information is displayed.
+    commands:
+      - command: assert
+        expect: the contact form titled "Contact our experts!" is displayed
+  - prompt: >-
+      Verify there are no visible errors.  # Use the content of the file from
+      the environment
+    commands:
+      - command: assert
+        expect: the contact form is displayed without visible errors
