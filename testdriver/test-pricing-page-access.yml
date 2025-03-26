@@ -1,0 +1,21 @@
+version: 4.2.24
+session: 67e4021ee166e87893ec243f
+steps:
+  - prompt: Click on "Pricing" in the navigation menu.
+    commands:
+      - command: hover-text
+        text: Pricing
+        description: pricing option in the navigation menu
+        action: click
+  - prompt: Assert that the Pricing page loads successfully.
+    commands:
+      - command: assert
+        expect: the Pricing and Support heading is visible
+  - prompt: >-
+      Verify that pricing plans are displayed.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: >-
+          the pricing plans "Platform Free," "Platform Pro," and "Platform
+          Starter" are visible
