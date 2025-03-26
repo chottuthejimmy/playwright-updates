@@ -54,7 +54,7 @@ jobs:
       test-name: ${{ steps.markdown_list.outputs.file_list }}
     steps:
       - name: Checkout base branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           ref: ${{ inputs.base-branch }}
 
