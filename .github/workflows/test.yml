@@ -106,7 +106,7 @@ jobs:
           create-pr: true
           pr-base: main
           pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract.outputs.file_name }}"
-          pr-branch: testdriver/playwright-${{ steps.extract.outputs.file_name }}-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}"
+          pr-branch: testdriver/playwright-${{ steps.extract.outputs.file_name }}-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}
           pr-test-filename: ${{ steps.extract.outputs.file_name }}.test.js
           prerun: |
             echo "Step 1: Installing Playwright globally"
