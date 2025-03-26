@@ -52,11 +52,11 @@ jobs:
           echo "File names to search for in branch names:"
           echo "$file_names"
           matches=""
-          for file in $file_names; do
+          # Iterate through the JSON array
+          for file in $(echo "$test_files" | jq -r '.[]'); do
             echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
-            # List remote branches that match the exact pattern.
-            # Note: 'origin/' is removed to get the clean branch name.
-            # Use grep with exact matching for the pattern
+            # List remote branches that match the exact pattern
+            # Note: 'origin/' is removed to get the clean branch name
             pattern="testdriver/regression-${file}-${run_id}-${attempt}"
             branch_matches=$(git branch -r | grep -E "origin/$pattern" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
@@ -65,7 +65,8 @@ jobs:
               matches="$matches $branch_matches"
             fi
           done
-          # Remove duplicates and format as a comma-separated list
+
+          # Remove duplicates and format as a JSON array
           matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
           echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
           echo "Matching branches: $matching_branches"
