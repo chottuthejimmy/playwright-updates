@@ -7,9 +7,10 @@ steps:
         text: Try for free
         description: button in the navigation bar
         action: click
+      - command: wait
+        timeout: 5000
   - prompt: >-
-      Assert that the user is redirected to the sign-up or trial registration
-      page.  # Use the content of the file from the environment
+      Assert that the user is redirected to the sign-up or trial registration page.
     commands:
       - command: assert
         expect: the page contains "Register for free"
