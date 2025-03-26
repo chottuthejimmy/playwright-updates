@@ -1,0 +1,31 @@
+version: 4.2.24
+session: 67e3f6ed3758c7759787bcfa
+steps:
+  - prompt: Click on the "Products" link in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Products
+        description: products link in the navigation bar
+        action: click
+  - prompt: Assert that the Products page loads successfully.
+    commands:
+      - command: assert
+        expect: PUBNUB PLATFORM section is visible
+  - prompt: Assert that the Products page loads successfully.
+    commands:
+      - command: hover-text
+        text: Overview
+        description: overview link in the products dropdown
+        action: click
+      - command: assert
+        expect: Products page is visible
+  - prompt: >-
+      Verify the presence of product listings on the page.  # Use the content of
+      the file from the environment
+    commands:
+      - command: scroll-until-text
+        text: Features
+        direction: down
+        method: keyboard
+      - command: assert
+        expect: Features section is visible
