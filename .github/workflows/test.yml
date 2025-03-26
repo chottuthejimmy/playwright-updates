@@ -38,6 +38,12 @@ jobs:
           file_list=$(echo "$file_names" | paste -sd "," -)
           echo "file_list=$file_list" >> $GITHUB_OUTPUT
 
+      - name: Get all the branches
+        id: get_branches
+        run: |
+          git fetch --all
+          git branch -r
+
       - name: Find branches with file name substrings
         id: matching
         run: |
@@ -54,7 +60,7 @@ jobs:
             # Note: 'origin/' is removed to get the clean branch name.
             # Use grep with exact matching for the pattern
             pattern="testdriver/regression-${file}-${run_id}-${attempt}"
-            branch_matches=$(git branch -r | grep --fixed-strings "origin/$pattern" | sed 's|origin/||' || true)
+            branch_matches=$(git branch -r | grep -E "origin/$pattern" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
               echo "Matches found for '$file':"
               echo "$branch_matches"
@@ -62,9 +68,8 @@ jobs:
             fi
           done
           # Remove duplicates and format as a comma-separated list
-          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
           echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
-          # echo "::set-output name=regression_branches::$matching_branches"
           echo "Matching branches: $matching_branches"
 
   generate-playwright-tests:
@@ -91,7 +96,6 @@ jobs:
       - uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
-          branch: ${{ matrix.branch }}
           prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
           create-pr: true
           pr-base: main
@@ -107,6 +111,7 @@ jobs:
             $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.get_test_file.outputs.test_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
 
             echo "Generated Playwright script"
+            echo "$process"
             echo "Step 5: Completed"
             exit 0
         env:
