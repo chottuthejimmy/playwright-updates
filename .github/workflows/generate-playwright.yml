@@ -69,8 +69,8 @@ jobs:
       - name: Find branches with file name substrings
         id: matching
         run: |
-          run_id="${{ github.event.inputs.run_id }}"
-          attempt="${{ github.event.inputs.attempt }}"
+          run_id="${{ github.run_id }}"
+          attempt="${{ github.run_attempt }}"
           # Convert the comma-separated list back to newlines for processing
           file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
