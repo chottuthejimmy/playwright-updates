@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       regression_branches: ${{ steps.matching.outputs.regression_branches }}
-      test_name: ${{ steps.extract.outputs.file_list_json }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v2
@@ -38,16 +37,6 @@ jobs:
           # Convert newline-separated file names into a comma-separated list
           file_list=$(echo "$file_names" | paste -sd "," -)
           echo "file_list=$file_list" >> $GITHUB_OUTPUT
-          # Convert the newline-separated file names into a JSON array
-          file_list_json=$(echo "$file_names" | jq -R -s -c 'split("\n")[:-1]')
-          echo "file_list_json=$file_list_json" >> $GITHUB_OUTPUT
-
-
-      - name: Get all the branches
-        id: get_branches
-        run: |
-          git fetch --all
-          git branch -r
 
       - name: Find branches with file name substrings
         id: matching
@@ -83,7 +72,6 @@ jobs:
     strategy:
       matrix:
         branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
-        test_name: ${{ fromJson(needs.find-regression-branches.outputs.test_name) }}
       fail-fast: false
     steps:
       - name: Check out repository
@@ -91,23 +79,33 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
 
+      - name: Extract markdown file names
+        id: extract
+        run: |
+          echo "Searching for Markdown files in the testdriver/ folder..."
+          # Find all .md files, then remove the directory and extension
+          file_name=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
+          echo "Extracted file name:"
+          echo "$file_name"
+          echo "file_name=$file_name" >> $GITHUB_OUTPUT
+
       - uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
-          prompt: 1. /run testdriver/${{ matrix.test_name }}.yml
+          prompt: 1. /run testdriver/${{ steps.extract.outputs.file_name }}.yml
           branch: ${{ matrix.branch }}
           create-pr: true
           pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.test_name }}"
-          pr-branch: testdriver/playwright-${{ matrix.test_name }}-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}"
-          pr-test-filename: ${{ matrix.test_name }}.test.js
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract.outputs.file_name }}"
+          pr-branch: testdriver/playwright-${{ steps.extract.outputs.file_name }}-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}"
+          pr-test-filename: ${{ steps.extract.outputs.file_name }}.test.js
           prerun: |
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
             echo "Step 3: Installing Playwright dependencies"
             playwright install --with-deps chromium
             echo "Step 4: Generating Playwright script"
-            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ matrix.test_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.extract.outputs.file_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
 
             echo "Generated Playwright script"
             echo "$process"
