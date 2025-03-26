@@ -1,0 +1,25 @@
+version: 4.2.24
+session: 67e3ca2f3758c7759787b9c0
+steps:
+  - prompt: Click on the "SUPPORT" link.
+    commands:
+      - command: hover-text
+        text: SUPPORT
+        description: support link in the top right of the header
+        action: click
+  - prompt: Assert that the support page is displayed.
+    commands:
+      - command: assert
+        expect: the text "HOW CAN WE HELP YOU?" is visible on the page
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the text "All Systems Operational" is visible on the page
+  - prompt: >-
+      Assert there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: the text "All Systems Operational" is visible on the page
