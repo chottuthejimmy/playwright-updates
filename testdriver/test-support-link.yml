@@ -1,0 +1,20 @@
+version: 4.2.24
+session: 67e3f6ee3758c7759787bcfe
+steps:
+  - prompt: Click the "SUPPORT" link in the header.
+    commands:
+      - command: hover-text
+        text: SUPPORT
+        description: support link in the top right of the header
+        action: click
+  - prompt: Assert that the support page loads successfully.
+    commands:
+      - command: assert
+        expect: the text "HOW CAN WE HELP YOU?" is visible
+  - prompt: >-
+      Verify the availability of support contact details.  # Use the content of
+      the file from the environment
+    commands:
+      - command: hover-image
+        description: chat icon in the bottom right corner
+        action: click
