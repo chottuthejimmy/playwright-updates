@@ -1,0 +1,31 @@
+version: 4.2.24
+session: 67e3f6c6e166e87893ec2335
+steps:
+  - prompt: Click the "Contact sales" button on the homepage.
+    commands:
+      - command: hover-text
+        text: Contact sales
+        description: contact sales button on the homepage
+        action: click
+  - prompt: Assert that the contact form page loads.
+    commands:
+      - command: assert
+        expect: the text "Find out how PubNub can help your business" is visible
+  - prompt: >-
+      Verify that contact information fields are present.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: the text "First Name" is visible
+      - command: assert
+        expect: the text "Last Name" is visible
+      - command: assert
+        expect: the text "Email Address" is visible
+      - command: assert
+        expect: the text "Company Name" is visible
+      - command: assert
+        expect: the text "Use Case" is visible
+      - command: assert
+        expect: the text "Country" is visible
+      - command: assert
+        expect: the text "Message" is visible
