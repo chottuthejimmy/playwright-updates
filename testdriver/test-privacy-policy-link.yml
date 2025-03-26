@@ -1,0 +1,27 @@
+version: 4.2.24
+session: 67e40219e166e87893ec2439
+steps:
+  - prompt: Click on the "Privacy Policy" link in the footer.
+    commands:
+      - command: scroll-until-text
+        text: Privacy Policy
+        direction: down
+        method: keyboard
+      - command: hover-text
+        text: Privacy Policy
+        description: link in the footer
+        action: click
+  - prompt: Assert that the Privacy Policy page opens successfully.
+    commands:
+      - command: assert
+        expect: the text "PubNub Privacy Policy" is visible on the page
+  - prompt: >-
+      Verify there are no visible errors on the page.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: the text "404" is not visible on the page
+      - command: assert
+        expect: the text "Error" is not visible on the page
+      - command: assert
+        expect: the text "Not Found" is not visible on the page
