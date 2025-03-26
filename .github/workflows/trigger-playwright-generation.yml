@@ -25,22 +25,12 @@ jobs:
           echo "TEST_FILE=$TEST_FILE"
           echo "test_file=$TEST_FILE" >> $GITHUB_OUTPUT
 
-      - name: List files in base branch
-        run: |
-          echo "Listing files in branch: ${{ github.event.inputs.base_branch }}"
-          ls -al ./testdriver/
-
       - name: Trigger Playwright Generation
         uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           branch: ${{ github.event.inputs.base_branch }}
           prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}.yml
-          # create-pr: false
-          # pr-base: main
-          # pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract_test_file.outputs.test_file }}"
-          # pr-branch: testdriver/playwright-${{ steps.extract_test_file.outputs.test_file }}
-          # pr-test-filename: playwright.test.js
           prerun: |
             cd $env:TEMP
             # Write-Output "Current directory: $(Get-Location)"
