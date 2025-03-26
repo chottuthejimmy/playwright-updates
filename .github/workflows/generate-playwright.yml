@@ -104,6 +104,8 @@ jobs:
         run: |
           run_id="${{ github.event.inputs.run_id }}"
           attempt="${{ github.event.inputs.run_attempt }}"
+          echo "run_id=$run_id"
+          echo "attempt=$attempt"
           # Convert the comma-separated list back to newlines for processing
           file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
