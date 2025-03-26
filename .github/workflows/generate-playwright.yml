@@ -51,26 +51,33 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       regression_branches: ${{ steps.matching.outputs.regression_branches }}
-      test-name: ${{ steps.markdown_list.outputs.files }}
+      test-name: ${{ steps.markdown_list.outputs.file_list_json }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.base-branch }}
         
-      - name: Find all markdown files and extract file names
+      - name: Extract markdown file names
         id: markdown_list
         run: |
-            FILES=$(ls ./testdriver/generate/*.md)
-            FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
-            FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
-            echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
+            echo "Searching for Markdown files in the testdriver/ folder..."
+            # Find all .md files, then remove the directory and extension
+            file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
+            echo "Extracted file names:"
+            echo "$file_names"
+            # Convert newline-separated file names into a comma-separated list
+            file_list=$(echo "$file_names" | paste -sd "," -)
+            echo "file_list=$file_list" >> $GITHUB_OUTPUT
+            # convert to json
+            file_list_json=$(echo "$file_list" | jq -R -s -c 'split("\n")[:-1]')
+            echo "file_list_json=$file_list_json" >> $GITHUB_OUTPUT
 
       - name: Find branches with file name substrings
         id: matching
         run: |
-          run_id="${{ github.run_id }}"
-          attempt="${{ github.run_attempt }}"
+          run_id="${{ github.event.inputs.run_id }}"
+          attempt="${{ github.event.inputs.run_attempt }}"
           # Convert the comma-separated list back to newlines for processing
           file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
