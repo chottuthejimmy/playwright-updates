@@ -1,0 +1,23 @@
+version: 4.2.24
+session: 67e3f6de3758c7759787bce4
+steps:
+  - prompt: Click on "Solutions" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Solutions
+        description: solutions link in the navigation bar
+        action: click
+  - prompt: Assert that the Solutions page loads.
+    commands:
+      - command: assert
+        expect: the "BY USE CASE" text is visible on the Solutions page
+  - prompt: >-
+      Verify that different solution categories are displayed.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: the "Chat" category is visible
+      - command: assert
+        expect: the "Live Audience Engagement" category is visible
+      - command: assert
+        expect: the "Sports, Media & Entertainment" category is visible
