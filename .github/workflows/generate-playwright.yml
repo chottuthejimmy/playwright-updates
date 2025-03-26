@@ -57,18 +57,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.base-branch }}
-        
-      - name: Extract markdown file names
+
+      - name: Find all markdown files and extract filenames
         id: markdown_list
         run: |
-          echo "Searching for Markdown files in the testdriver/ folder..."
-          # Find all .md files, then remove the directory and extension
-          file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
-          echo "Extracted file names:"
-          echo "$file_names"
-          # Convert newline-separated file names into a comma-separated list
-          file_list=$(echo "$file_names" | paste -sd "," -)
-          echo "file_list=$file_list" >> $GITHUB_OUTPUT
+          FILES=$(ls ./testdriver/generate/*.md)
+          FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
+          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
+          echo "file_list=$FILES_JSON" >> $GITHUB_OUTPUT
+          echo "File names to search for in branch names:"
+          echo "$FILES_JSON"
 
       - name: Find branches with file name substrings
         id: matching
@@ -79,7 +77,7 @@ jobs:
           file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
           echo "$file_names"
-          matches=""
+          matches_array=()
           for file in $file_names; do
             echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
             # List remote branches that match the exact pattern.
@@ -90,13 +88,17 @@ jobs:
             if [ -n "$branch_matches" ]; then
               echo "Matches found for '$file':"
               echo "$branch_matches"
-              matches="$matches $branch_matches"
+              # Add each matching branch to the array
+              while IFS= read -r branch; do
+                matches_array+=("$branch")
+              done <<< "$branch_matches"
             fi
           done
-          # Remove duplicates and format as a comma-separated list
-          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
-          echo "matching_branches=$matching_branches" >> $GITHUB_OUTPUT
-          echo "Matching branches: $matching_branches"
+          # Remove duplicates and format as a JSON array
+          unique_matches=$(printf '%s\n' "${matches_array[@]}" | sort -u)
+          matching_branches_json=$(echo "$unique_matches" | jq -R -s -c 'split("\n")[:-1]')
+          echo "matching_branches=$matching_branches_json" >> $GITHUB_OUTPUT
+          echo "Matching branches (JSON): $matching_branches_json"
 
   generate-playwright-tests:
     name: Generate Playwright Tests
