@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.base_branch }}
 
@@ -31,21 +31,22 @@ jobs:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           branch: ${{ github.event.inputs.base_branch }}
           prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}.yml
+          create-pr: true
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Playwright Tests / ${{ steps.extract_test_file.outputs.test_file }}"
+          pr-branch: testdriver/playwright-${{ steps.extract_test_file.outputs.test_file }}-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-test-filename: ${{ steps.extract_test_file.outputs.test_file }}.test.js
           prerun: |
-            cd $env:TEMP
-            # Write-Output "Current directory: $(Get-Location)"
-            # Write-Output "files in current directory: $(Get-ChildItem -Force)"
-            # Write-Output "files in testdriver directory: $(Get-ChildItem -Force ./testdriver/)"
-            # # echo "Step 1: Installing Playwright globally"
-            # npm install playwright -g
-            # echo "Step 3: Installing Playwright dependencies"
-            # playwright install --with-deps chromium
-            # echo "Step 4: Generating Playwright script"
-            # npx playwright codegen --target playwright-test --viewport-size="1920,1080" -o testdriver/playwright.test.js "${{ vars.TESTDRIVER_WEBSITE }}"
-            # exit 0
-            npm init -y
-            npm install dashcam-chrome
-            Start-Process "C:/Program Files/Google/Chrome/Application/chrome.exe" -ArgumentList "--start-maximized", "--load-extension=$(pwd)/node_modules/dashcam-chrome/build", "${{ vars.TESTDRIVER_WEBSITE }}"
+            echo "Step 1: Installing Playwright globally"
+            npm install playwright -g
+
+            echo "Step 3: Installing Playwright dependencies"
+            playwright install --with-deps chromium
+
+            echo "Step 4: Generating Playwright script"
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --viewport-size=1920,1080 --target playwright-test -o testdriver/${{ steps.extract_test_file.outputs.test_file }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
+
+            echo "Step 5: Completed"
             exit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
