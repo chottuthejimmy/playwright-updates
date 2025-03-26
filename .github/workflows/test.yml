@@ -38,6 +38,13 @@ jobs:
           file_list=$(echo "$file_names" | paste -sd "," -)
           echo "file_list=$file_list" >> $GITHUB_OUTPUT
 
+
+      - name: Get all the branches
+        id: get_branches
+        run: |
+          git fetch --all
+          git branch -r
+
       - name: Find branches with file name substrings
         id: matching
         run: |
@@ -65,6 +72,8 @@ jobs:
           matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
           echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
           echo "Matching branches: $matching_branches"
+
+
 
   generate-playwright-tests:
     needs: find-regression-branches
