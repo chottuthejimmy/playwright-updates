@@ -1,0 +1,19 @@
+version: 4.2.24
+session: 67e40a3ce166e87893ec2555
+steps:
+  - prompt: Observe the cookie consent message.
+    commands:
+      - command: hover-text
+        text: Cookies Settings
+        description: link in the cookie consent message at the bottom of the page
+        action: hover
+  - prompt: Click "Accept Cookies".
+    commands:
+      - command: hover-text
+        text: Accept Cookies
+        description: button in the cookie consent message at the bottom right of the page
+        action: click
+  - prompt: Assert that the message disappears.
+    commands:
+      - command: assert
+        expect: the cookie consent message is not visible
