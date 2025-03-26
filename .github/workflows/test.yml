@@ -1,4 +1,4 @@
-name: Find Matching Branches
+name: Find and Generate Playwright Tests
 
 on:
   workflow_dispatch:
@@ -6,11 +6,20 @@ on:
       base_branch:
         description: 'The base branch to search in'
         required: true
-        default: 'main'
-
+        default: 'testdriver/exploratory-14080624045-1'
+      run_id:
+        description: 'The run ID to search for'
+        required: true
+        default: '14080624045'
+      attempt:
+        description: 'The attempt number to search for'
+        required: true
+        default: '1'
 jobs:
-  find-matching-branches:
+  find-regression-branches:
     runs-on: ubuntu-latest
+    outputs:
+      regression_branches: ${{ steps.matching.outputs.regression_branches }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v2
@@ -32,17 +41,20 @@ jobs:
       - name: Find branches with file name substrings
         id: matching
         run: |
+          run_id="${{ github.event.inputs.run_id }}"
+          attempt="${{ github.event.inputs.attempt }}"
           # Convert the comma-separated list back to newlines for processing
           file_names=$(echo "${{ steps.extract.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
           echo "$file_names"
           matches=""
           for file in $file_names; do
-            echo "Searching for remote branches containing: $file"
-            # List remote branches that match the file name substring.
+            echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
+            # List remote branches that match the exact pattern.
             # Note: 'origin/' is removed to get the clean branch name.
-            # Use grep with word boundaries to find file name anywhere in branch name
-            branch_matches=$(git branch -r | grep -E ".*${file}.*" | sed 's|origin/||' || true)
+            # Use grep with exact matching for the pattern
+            pattern="testdriver/regression-${file}-${run_id}-${attempt}"
+            branch_matches=$(git branch -r | grep --fixed-strings "origin/$pattern" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
               echo "Matches found for '$file':"
               echo "$branch_matches"
@@ -50,10 +62,53 @@ jobs:
             fi
           done
           # Remove duplicates and format as a comma-separated list
-          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
-          echo "matching_branches=$matching_branches" >> $GITHUB_OUTPUT
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
+          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
+          # echo "::set-output name=regression_branches::$matching_branches"
           echo "Matching branches: $matching_branches"
 
-      - name: Output matching branches
+  generate-playwright-tests:
+    needs: find-regression-branches
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
+      fail-fast: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Get test file name
+        id: get_test_file
         run: |
-          echo "The matching branches are: ${{ steps.matching.outputs.matching_branches }}"
+          # Extract test name from branch name (format: testdriver/regression-{test_name}-{run_id}-{attempt})
+          TEST_NAME=$(echo "${{ matrix.branch }}" | sed -E 's/testdriver\/regression-([^-]+)-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}$/\1/')
+          echo "test_name=$TEST_NAME" >> $GITHUB_OUTPUT
+          echo "yml_file=$TEST_NAME.yml" >> $GITHUB_OUTPUT
+
+      - uses: testdriverai/action@main
+        with:
+          key: ${{ secrets.TESTDRIVER_API_KEY }}
+          branch: ${{ matrix.branch }}
+          prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
+          create-pr: true
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.get_test_file.outputs.test_name }}"
+          pr-branch: testdriver/playwright-${{ steps.get_test_file.outputs.test_name }}-${{ github.event.inputs.run_id }}-${{ github.event.inputs.attempt }}"
+          pr-test-filename: ${{ steps.get_test_file.outputs.test_name }}.test.js
+          prerun: |
+            echo "Step 1: Installing Playwright globally"
+            npm install playwright -g
+            echo "Step 3: Installing Playwright dependencies"
+            playwright install --with-deps chromium
+            echo "Step 4: Generating Playwright script"
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.get_test_file.outputs.test_name }}.test.js ${{ vars.TESTDRIVER_WEBSITE }}" -PassThru
+
+            echo "Generated Playwright script"
+            echo "Step 5: Completed"
+            exit 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_COLOR: "3"
