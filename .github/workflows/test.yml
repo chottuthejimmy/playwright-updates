@@ -30,11 +30,18 @@ jobs:
       - name: Extract markdown file names
         id: extract
         run: |
-          FILES=$(ls ./testdriver/generate/*.md)
-          FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
-          # echo "file_list=$FILENAMES" >> $GITHUB_OUTPUT
-          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
-          echo "file_list_json=$FILES_JSON" >> $GITHUB_OUTPUT
+          echo "Searching for Markdown files in the testdriver/ folder..."
+          # Find all .md files, then remove the directory and extension
+          file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
+          echo "Extracted file names:"
+          echo "$file_names"
+          # Convert newline-separated file names into a comma-separated list
+          file_list=$(echo "$file_names" | paste -sd "," -)
+          echo "file_list=$file_list" >> $GITHUB_OUTPUT
+          # Convert the newline-separated file names into a JSON array
+          file_list_json=$(echo "$file_names" | jq -R -s -c 'split("\n")[:-1]')
+          echo "file_list_json=$file_list_json" >> $GITHUB_OUTPUT
+
 
       - name: Get all the branches
         id: get_branches
@@ -48,15 +55,15 @@ jobs:
           run_id="${{ github.event.inputs.run_id }}"
           attempt="${{ github.event.inputs.attempt }}"
           # Convert the comma-separated list back to newlines for processing
-          file_names=$(echo '${{ steps.extract.outputs.file_list_json }}')
+          file_names=$(echo "${{ steps.extract.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
           echo "$file_names"
           matches=""
-          # Iterate through the JSON array
-          for file in $(echo "$test_files" | jq -r '.[]'); do
+          for file in $file_names; do
             echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
-            # List remote branches that match the exact pattern
-            # Note: 'origin/' is removed to get the clean branch name
+            # List remote branches that match the exact pattern.
+            # Note: 'origin/' is removed to get the clean branch name.
+            # Use grep with exact matching for the pattern
             pattern="testdriver/regression-${file}-${run_id}-${attempt}"
             branch_matches=$(git branch -r | grep -E "origin/$pattern" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
@@ -65,8 +72,7 @@ jobs:
               matches="$matches $branch_matches"
             fi
           done
-
-          # Remove duplicates and format as a JSON array
+          # Remove duplicates and format as a comma-separated list
           matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
           echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
           echo "Matching branches: $matching_branches"
