@@ -97,6 +97,7 @@ jobs:
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: 1. /run testdriver/${{ steps.get_test_file.outputs.yml_file }}
+          branch: ${{ matrix.branch }}
           create-pr: true
           pr-base: main
           pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.get_test_file.outputs.test_name }}"
