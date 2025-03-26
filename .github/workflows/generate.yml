@@ -34,7 +34,8 @@ jobs:
       
   generate-playwright:
     name: TestDriver.ai / Generate / Playwright
-    needs: generate-exploratory
+    needs: [generate-exploratory, generate-regression]
+    if: always()
     uses: ./.github/workflows/generate-playwright.yml
     with:
       base-branch: ${{ needs.generate-exploratory.outputs.pr-branch }}
