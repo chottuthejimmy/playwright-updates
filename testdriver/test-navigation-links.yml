@@ -1,0 +1,9 @@
+version: 4.2.24
+session: 67e3ca26e166e87893ec1ff9
+steps:
+  - prompt: Click on "Products" in the navigation menu.
+    commands:
+      - command: hover-text
+        text: Products
+        description: products link in the navigation menu
+        action: click
