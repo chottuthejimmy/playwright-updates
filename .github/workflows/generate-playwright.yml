@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       regression_branches: ${{ steps.matching.outputs.regression_branches }}
-      test-name: ${{ steps.markdown_list.outputs.file_list_json }}
+      test-name: ${{ steps.markdown_list.outputs.file_list }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v4
@@ -61,25 +61,20 @@ jobs:
       - name: Extract markdown file names
         id: markdown_list
         run: |
-            echo "Searching for Markdown files in the testdriver/ folder..."
-            # Find all .md files, then remove the directory and extension
-            file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
-            echo "Extracted file names:"
-            echo "$file_names"
-            # Convert newline-separated file names into a comma-separated list
-            file_list=$(echo "$file_names" | paste -sd "," -)
-            echo "file_list=$file_list" >> $GITHUB_OUTPUT
-            # convert to json
-            file_list_json=$(echo "$file_list" | jq -R -s -c 'split("\n")[:-1]')
-            echo "file_list_json=$file_list_json" >> $GITHUB_OUTPUT
+          echo "Searching for Markdown files in the testdriver/ folder..."
+          # Find all .md files, then remove the directory and extension
+          file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
+          echo "Extracted file names:"
+          echo "$file_names"
+          # Convert newline-separated file names into a comma-separated list
+          file_list=$(echo "$file_names" | paste -sd "," -)
+          echo "file_list=$file_list" >> $GITHUB_OUTPUT
 
       - name: Find branches with file name substrings
         id: matching
         run: |
           run_id="${{ inputs.run-id }}"
           attempt="${{ inputs.run-attempt }}"
-          echo "run_id=$run_id"
-          echo "attempt=$attempt"
           # Convert the comma-separated list back to newlines for processing
           file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
@@ -99,8 +94,8 @@ jobs:
             fi
           done
           # Remove duplicates and format as a comma-separated list
-          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
-          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
+          echo "matching_branches=$matching_branches" >> $GITHUB_OUTPUT
           echo "Matching branches: $matching_branches"
 
   generate-playwright-tests:
