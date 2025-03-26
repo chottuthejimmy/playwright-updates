@@ -1,0 +1,21 @@
+version: 4.2.24
+session: 67e3d56c3758c7759787baae
+steps:
+  - prompt: Click on "Pricing" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Pricing
+        description: pricing option in the navigation bar
+        action: click
+  - prompt: Assert that the Pricing page loads.
+    commands:
+      - command: assert
+        expect: Pricing and Support is visible on the page
+  - prompt: >-
+      Verify the pricing information is displayed without errors.  # Use the
+      content of the file from the environment
+    commands:
+      - command: assert
+        expect: >-
+          Pricing details including "Free", "Custom", and "$98 per month" are
+          visible without errors
