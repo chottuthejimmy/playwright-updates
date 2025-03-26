@@ -1,0 +1,29 @@
+version: 4.2.24
+session: 67e40a913758c7759787bf2f
+steps:
+  - prompt: Click on the search icon in the navigation bar.
+    commands:
+      - command: hover-image
+        description: search icon in the navigation bar
+        action: click
+  - prompt: Enter a query and press enter.
+    commands:
+      - command: hover-text
+        text: Search or ask anything
+        description: search input field
+        action: click
+      - command: type
+        text: real-time data
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: Assert that search results are displayed.
+    commands:
+      - command: assert
+        expect: search results are displayed
+  - prompt: >-
+      Verify no errors in search results.  # Use the content of the file from
+      the environment
+    commands:
+      - command: assert
+        expect: no errors in search results
