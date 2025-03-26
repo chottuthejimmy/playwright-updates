@@ -1,0 +1,26 @@
+version: 4.2.24
+session: 67e3f6d1e166e87893ec233d
+steps:
+  - prompt: Click on the search icon in the header.
+    commands:
+      - command: hover-image
+        description: search icon in the header
+        action: click
+  - prompt: Enter a search term such as "SDKs".
+    commands:
+      - command: type
+        text: SDKs
+  - prompt: Assert that search results are displayed.
+    commands:
+      - command: assert
+        expect: search results are displayed
+  - prompt: Assert that search results are displayed.
+    commands:
+      - command: assert
+        expect: search results are displayed
+  - prompt: >-
+      Verify that relevant results are shown.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: relevant SDK results are displayed
