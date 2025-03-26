@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       regression_branches: ${{ steps.matching.outputs.regression_branches }}
-      test_name: ${{ steps.extract.outputs.file_list }}
+      test_name: ${{ steps.extract.outputs.file_list_json }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v2
@@ -30,19 +30,11 @@ jobs:
       - name: Extract markdown file names
         id: extract
         run: |
-          echo "Searching for Markdown files in the testdriver/ folder..."
-          # Find all .md files, then remove the directory and extension
-          file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
-          echo "Extracted file names:"
-          echo "$file_names"
-          # Convert newline-separated file names into a comma-separated list
-          file_list=$(echo "$file_names" | paste -sd "," -)
-          echo "file_list=$file_list" >> $GITHUB_OUTPUT
-          # Convert file list to JSON array
-          file_list_json=$(echo "$file_list" | jq -R 'split(",")' || echo "[]")
-          echo "file_list=$file_list_json" >> $GITHUB_OUTPUT
-          echo "File list as JSON:"
-          echo "$file_list_json"
+          FILES=$(ls ./testdriver/generate/*.md)
+          FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
+          echo "file_list=$FILENAMES" >> $GITHUB_OUTPUT
+          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
+          echo "file_list_json=$FILES_JSON" >> $GITHUB_OUTPUT
 
       - name: Get all the branches
         id: get_branches
@@ -56,7 +48,7 @@ jobs:
           run_id="${{ github.event.inputs.run_id }}"
           attempt="${{ github.event.inputs.attempt }}"
           # Convert the comma-separated list back to newlines for processing
-          file_names=$(echo "${{ steps.extract.outputs.file_list }}" | tr ',' '\n')
+          file_names=$(echo "${{ steps.extract.outputs.file_list_json }}" | jq -r '.[]')
           echo "File names to search for in branch names:"
           echo "$file_names"
           matches=""
