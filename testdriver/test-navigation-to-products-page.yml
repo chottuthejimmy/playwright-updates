@@ -1,0 +1,37 @@
+version: 4.2.24
+session: 67e3d58c3758c7759787baca
+steps:
+  - prompt: Click on "Products" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Products
+        description: link in the navigation bar
+        action: click
+  - prompt: Assert that the Products page loads successfully.
+    commands:
+      - command: assert
+        expect: PUBNUB PLATFORM is visible
+  - prompt: >-
+      Verify there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: no error messages are visible
+  - prompt: >-
+      Verify there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: no error messages are visible
+  - prompt: >-
+      Verify there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: no error messages are visible
+  - prompt: >-
+      Verify there are no errors on the page.  # Use the content of the file
+      from the environment
+    commands:
+      - command: assert
+        expect: no error messages are visible
