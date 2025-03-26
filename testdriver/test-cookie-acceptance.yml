@@ -1,0 +1,13 @@
+version: 4.2.24
+session: 67e402143758c7759787bdc3
+steps:
+  - prompt: Click on "Accept Cookies" button in the cookie banner.
+    commands:
+      - command: hover-text
+        text: Accept Cookies
+        description: button in the cookie banner at the bottom right
+        action: click
+  - prompt: Assert that the banner disappears after accepting cookies.
+    commands:
+      - command: assert
+        expect: the cookie banner is not visible
