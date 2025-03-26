@@ -1,0 +1,79 @@
+version: 4.2.24
+session: 67e40a4ee166e87893ec2560
+steps:
+  - prompt: Navigate to the "Resources" section in the navigation bar.
+    commands:
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+  - prompt: Click on a resource link.
+    commands:
+      - command: hover-text
+        text: Blog
+        description: blog link in the resources dropdown
+        action: click
+  - prompt: Assert that the resource is available and loads correctly.
+    commands:
+      - command: assert
+        expect: the Blogs heading is visible
+  - prompt: >-
+      Repeat for all resource links.  # Use the content of the file from the
+      environment
+    commands:
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+      - command: hover-text
+        text: Demos
+        description: demos link in the resources dropdown
+        action: click
+  - prompt: >-
+      Repeat for all resource links.  # Use the content of the file from the
+      environment
+    commands:
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+      - command: hover-text
+        text: Solution Briefs
+        description: solution briefs link in the resources dropdown
+        action: click
+  - prompt: >-
+      Repeat for all resource links.  # Use the content of the file from the
+      environment
+    commands:
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+      - command: hover-text
+        text: Customers
+        description: customers link in the resources dropdown
+        action: click
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+      - command: hover-text
+        text: eBooks
+        description: ebooks link in the resources dropdown
+        action: click
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+      - command: hover-text
+        text: Careers
+        description: careers link in the resources dropdown
+        action: click
+      - command: hover-text
+        text: Resources
+        description: resources section in the navigation bar
+        action: click
+      - command: hover-text
+        text: About Us
+        description: about us link in the resources dropdown
+        action: click
