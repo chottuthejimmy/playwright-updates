@@ -1,0 +1,29 @@
+version: 4.2.24
+session: 67e3ca473758c7759787b9e4
+steps:
+  - prompt: Click on the search icon.
+    commands:
+      - command: hover-image
+        description: search icon in the top right corner of the webpage
+        action: click
+  - prompt: Enter a search term and press enter.
+    commands:
+      - command: hover-text
+        text: Search or ask anything
+        description: search input field in the center of the webpage
+        action: click
+      - command: type
+        text: real-time apps
+      - command: press-keys
+        keys:
+          - enter
+  - prompt: Assert that search results are displayed.
+    commands:
+      - command: assert
+        expect: search results for "real-time apps" are displayed
+  - prompt: >-
+      Assert there are no errors in the search results.  # Use the content of
+      the file from the environment
+    commands:
+      - command: assert
+        expect: no error messages are displayed in the search results
