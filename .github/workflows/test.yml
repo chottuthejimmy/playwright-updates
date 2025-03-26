@@ -68,7 +68,7 @@ jobs:
             fi
           done
           # Remove duplicates and format as a comma-separated list
-          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | paste -sd "," -)
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
           echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
           echo "Matching branches: $matching_branches"
 
