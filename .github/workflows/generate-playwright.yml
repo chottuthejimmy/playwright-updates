@@ -15,6 +15,9 @@ on:
       key:
         required: true
         description: The TestDriver API key
+      GH_TOKEN:
+        required: true
+        description: The GitHub token
   workflow_dispatch:
     inputs:
       website-url:
