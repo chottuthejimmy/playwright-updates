@@ -34,6 +34,7 @@ jobs:
         uses: testdriverai/action@main
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
+          branch: ${{ github.event.inputs.base_branch }}
           prompt: 1. /run testdriver/${{ steps.extract_test_file.outputs.test_file }}.yml
           # create-pr: false
           # pr-base: main
