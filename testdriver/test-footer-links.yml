@@ -1,0 +1,83 @@
+version: 4.2.24
+session: 67e40a4c3758c7759787beda
+steps:
+  - prompt: Scroll down to the footer.
+    commands:
+      - command: scroll-until-text
+        text: Privacy Policy
+        direction: down
+        method: keyboard
+  - prompt: Click on the "Privacy Policy" link.
+    commands:
+      - command: hover-text
+        text: Privacy Policy
+        description: link in the footer
+        action: click
+  - prompt: Assert that the Privacy Policy page opens correctly.
+    commands:
+      - command: assert
+        expect: the text "PubNub Privacy Policy" is visible
+  - prompt: >-
+      Return and repeat for all footer links.  # Use the content of the file
+      from the environment
+    commands:
+      - command: press-keys
+        keys:
+          - alt
+          - left
+      - command: wait
+        timeout: 3000
+      - command: hover-text
+        text: Terms and Conditions
+        description: link in the footer
+        action: click
+      - command: wait
+        timeout: 3000
+      - command: press-keys
+        keys:
+          - alt
+          - left
+      - command: wait
+        timeout: 3000
+      - command: hover-text
+        text: Cookie Policy
+        description: link in the footer
+        action: click
+  - prompt: >-
+      Return and repeat for all footer links.  # Use the content of the file
+      from the environment
+    commands:
+      - command: press-keys
+        keys:
+          - alt
+          - left
+      - command: wait
+        timeout: 3000
+      - command: hover-text
+        text: Our Company
+        description: link in the footer
+        action: click
+      - command: wait
+        timeout: 3000
+      - command: press-keys
+        keys:
+          - alt
+          - left
+      - command: wait
+        timeout: 3000
+      - command: hover-text
+        text: Careers
+        description: link in the footer
+        action: click
+      - command: wait
+        timeout: 3000
+      - command: press-keys
+        keys:
+          - alt
+          - left
+      - command: wait
+        timeout: 3000
+      - command: hover-text
+        text: Support
+        description: link in the footer
+        action: click
