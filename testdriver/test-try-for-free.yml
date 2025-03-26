@@ -1,0 +1,21 @@
+version: 4.2.24
+session: 67e3f6dce166e87893ec234b
+steps:
+  - prompt: Click on the "Try for free" button in the header.
+    commands:
+      - command: hover-text
+        text: Try for free
+        description: button in the header
+        action: click
+  - prompt: Assert that the trial registration page loads.
+    commands:
+      - command: assert
+        expect: the trial registration page with "Register for free" is visible
+  - prompt: >-
+      Ensure that registration fields are displayed.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: >-
+          the registration fields "First name," "Last name," "Email," and
+          "Password" are visible
