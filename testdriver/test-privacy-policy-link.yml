@@ -1,0 +1,27 @@
+version: 4.2.24
+session: 67e3f6dc3758c7759787bcdf
+steps:
+  - prompt: Click the "Privacy Policy" link in the footer.
+    commands:
+      - command: scroll-until-text
+        text: Privacy Policy
+        direction: down
+        method: keyboard
+      - command: hover-text
+        text: Privacy Policy
+        description: link in the footer
+        action: click
+  - prompt: Assert that the privacy policy page loads.
+    commands:
+      - command: assert
+        expect: PubNub Privacy Policy is visible on the page
+  - prompt: >-
+      Check for information about data handling.  # Use the content of the file
+      from the environment
+    commands:
+      - command: scroll-until-text
+        text: Information We Collect and Receive
+        direction: down
+        method: keyboard
+      - command: assert
+        expect: Information We Collect and Receive section is visible
