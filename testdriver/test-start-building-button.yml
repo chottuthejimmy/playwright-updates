@@ -1,0 +1,19 @@
+version: 4.2.24
+session: 67e40a473758c7759787bed5
+steps:
+  - prompt: Click on the "Start Building" button.
+    commands:
+      - command: hover-text
+        text: Start Building
+        description: button to begin building on the main page
+        action: click
+  - prompt: Assert that the relevant page or section is loaded.
+    commands:
+      - command: assert
+        expect: the "Register for free" section is visible
+  - prompt: >-
+      Verify that no errors are present on the page.  # Use the content of the
+      file from the environment
+    commands:
+      - command: assert
+        expect: no error messages are visible on the registration page
