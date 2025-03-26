@@ -1,31 +1,6 @@
 name: TestDriver.ai / Generate / Playwright
 
-permissions:
-  actions: read
-  contents: write
-  statuses: write
-  pull-requests: write
-
 on:
-  workflow_dispatch:
-    inputs:
-      base-branch:
-        type: string
-        required: true
-        description: The branch name of the exploratory run
-      run-id:
-        type: string
-        required: true
-        description: The run id of the exploratory run
-      run-attempt:
-        type: string
-        required: true
-        description: The run attempt of the exploratory run
-      website-url:
-        type: string
-        required: true
-        description: The URL of the website to test
-
   workflow_call:
     inputs:
       website-url:
@@ -35,109 +10,127 @@ on:
       base-branch:
         type: string
         required: true
-        description: The branch name of the exploratory run
+        description: The branch name of the pull request
     secrets:
       key:
         required: true
         description: The TestDriver API key
-      GH_TOKEN:
+  workflow_dispatch:
+    inputs:
+      website-url:
+        description: The URL of the website to test
         required: true
-        description: The GitHub token
-
+      base-branch:
+        description: The base branch to search in
+        required: true
+      run_id:
+        description: The run ID to search for
+        required: true
+      attempt:
+        description: The attempt number to search for
+        required: true
 jobs:
-
   find-regression-branches:
-    name: Find regression branches
     runs-on: ubuntu-latest
     outputs:
       regression_branches: ${{ steps.matching.outputs.regression_branches }}
-      test-name: ${{ steps.markdown_list.outputs.file_list }}
     steps:
       - name: Checkout base branch
         uses: actions/checkout@v2
         with:
           ref: ${{ inputs.base-branch }}
 
-      - name: Find all markdown files and extract filenames
-        id: markdown_list
+      - name: Extract markdown file names
+        id: extract
         run: |
-          FILES=$(ls ./testdriver/generate/*.md)
-          FILENAMES=$(basename -a $FILES | sed 's/\.md$//')
-          FILES_JSON=$(echo "$FILENAMES" | jq -R -s -c 'split("\n")[:-1]')
-          echo "file_list=$FILES_JSON" >> $GITHUB_OUTPUT
-          echo "File names to search for in branch names:"
-          echo "$FILES_JSON"
+          echo "Searching for Markdown files in the testdriver/ folder..."
+          # Find all .md files, then remove the directory and extension
+          file_names=$(find testdriver -type f -name "*.md" | sed 's|.*/||; s/\.md$//')
+          echo "Extracted file names:"
+          echo "$file_names"
+          # Convert newline-separated file names into a comma-separated list
+          file_list=$(echo "$file_names" | paste -sd "," -)
+          echo "file_list=$file_list" >> $GITHUB_OUTPUT
+
+      - name: Get all the branches
+        id: get_branches
+        run: |
+          git fetch --all
+          git branch -r
 
       - name: Find branches with file name substrings
         id: matching
         run: |
-          run_id="${{ inputs.run-id }}"
-          attempt="${{ inputs.run-attempt }}"
+          run_id="${{ github.run_id }}"
+          attempt="${{ github.run_attempt }}"
           # Convert the comma-separated list back to newlines for processing
-          file_names=$(echo "${{ steps.markdown_list.outputs.file_list }}" | tr ',' '\n')
+          file_names=$(echo "${{ steps.extract.outputs.file_list }}" | tr ',' '\n')
           echo "File names to search for in branch names:"
           echo "$file_names"
-          matches_array=()
+          matches=""
           for file in $file_names; do
             echo "Searching for remote branches containing pattern: testdriver/regression-$file-$run_id-$attempt"
             # List remote branches that match the exact pattern.
             # Note: 'origin/' is removed to get the clean branch name.
             # Use grep with exact matching for the pattern
             pattern="testdriver/regression-${file}-${run_id}-${attempt}"
-            branch_matches=$(git branch -r | grep --fixed-strings "origin/$pattern" | sed 's|origin/||' || true)
+            branch_matches=$(git branch -r | grep -E "origin/$pattern" | sed 's|origin/||' || true)
             if [ -n "$branch_matches" ]; then
               echo "Matches found for '$file':"
               echo "$branch_matches"
-              # Add each matching branch to the array
-              while IFS= read -r branch; do
-                matches_array+=("$branch")
-              done <<< "$branch_matches"
+              matches="$matches $branch_matches"
             fi
           done
-          # Remove duplicates and format as a JSON array
-          unique_matches=$(printf '%s\n' "${matches_array[@]}" | sort -u)
-          matching_branches_json=$(echo "$unique_matches" | jq -R -s -c 'split("\n")[:-1]')
-          echo "matching_branches=$matching_branches_json" >> $GITHUB_OUTPUT
-          echo "Matching branches (JSON): $matching_branches_json"
+          # Remove duplicates and format as a comma-separated list
+          matching_branches=$(echo $matches | tr ' ' '\n' | sort | uniq | jq -R -s -c 'split("\n")[:-1]')
+          echo "regression_branches=$matching_branches" >> $GITHUB_OUTPUT
+          echo "Matching branches: $matching_branches"
 
   generate-playwright-tests:
-    name: Generate Playwright Tests
     needs: find-regression-branches
     runs-on: ubuntu-latest
     strategy:
       matrix:
         branch: ${{ fromJson(needs.find-regression-branches.outputs.regression_branches) }}
-        test-name: ${{ fromJson(needs.find-regression-branches.outputs.test-name) }}
       fail-fast: false
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           ref: ${{ matrix.branch }}
 
+      - name: Extract the test name
+        id: extract
+        run: |
+          echo "Searching for yaml file in the testdriver/ folder..."
+          # Find all .yml files, then remove the directory and extension
+          file_name=$(find testdriver -type f -name "*.yml" | sed 's|.*/||; s/\.yml$//')
+          echo "Extracted file name:"
+          echo "$file_name"
+          echo "file_name=$file_name" >> $GITHUB_OUTPUT
+
       - uses: testdriverai/action@main
         with:
-          key: ${{ secrets.key }}
+          key: ${{ secrets.TESTDRIVER_API_KEY }}
+          prompt: 1. /run testdriver/${{ steps.extract.outputs.file_name }}.yml
           branch: ${{ matrix.branch }}
-          prompt: 1. /run testdriver/${{ matrix.test-name }}.yml
           create-pr: true
           pr-base: main
-          pr-title: "TestDriver.ai / Generate Playwright / ${{ matrix.test-name }}"
-          pr-branch: testdriver/playwright-${{ matrix.test-name }}-${{ github.run_id }}-${{ github.run_attempt }}
-          pr-test-filename: ${{ matrix.test-name }}.test.js
+          pr-title: "TestDriver.ai / Generate Playwright / ${{ steps.extract.outputs.file_name }}"
+          pr-branch: testdriver/playwright-${{ steps.extract.outputs.file_name }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          pr-test-filename: ${{ steps.extract.outputs.file_name }}.test.js
           prerun: |
             echo "Step 1: Installing Playwright globally"
             npm install playwright -g
-
             echo "Step 3: Installing Playwright dependencies"
             playwright install --with-deps chromium
-
             echo "Step 4: Generating Playwright script"
-            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ matrix.test-name }}.test.js ${{ inputs.website-url }}" -PassThru
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/${{ steps.extract.outputs.file_name }}.test.js ${{ inputs.website-url }}" -PassThru
 
+            echo "Generated Playwright script"
+            echo "$process"
             echo "Step 5: Completed"
-            exit
-
+            exit 0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FORCE_COLOR: "3"
