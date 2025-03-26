@@ -1,0 +1,27 @@
+version: 4.2.24
+session: 67e3d5703758c7759787bab2
+steps:
+  - prompt: Click on "Login" in the navigation bar.
+    commands:
+      - command: hover-text
+        text: LOGIN
+        description: login button in the top right of the navigation bar
+        action: click
+  - prompt: Assert that the login page loads.
+    commands:
+      - command: assert
+        expect: the login page is displayed with "Log in" text
+  - prompt: >-
+      Verify the page is free from errors and the login form is accessible.  #
+      Use the content of the file from the environment
+    commands:
+      - command: assert
+        expect: the login page is displayed with "Log in" text
+      - command: hover-text
+        text: Email address
+        description: email input field
+        action: click
+      - command: hover-text
+        text: Password
+        description: password input field
+        action: click
