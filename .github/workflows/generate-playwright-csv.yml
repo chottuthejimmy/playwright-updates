@@ -85,7 +85,7 @@ jobs:
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: |
-            ${{ env.CSV_CONTENT }}  # Use the content of the file from the environment
+            ${{ env.CSV_CONTENT }}
             1. /summarize
             prerun: |
             echo "Step 1: Installing Playwright globally"
