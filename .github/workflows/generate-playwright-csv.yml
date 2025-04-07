@@ -58,19 +58,11 @@ jobs:
             # Original content with commas
             ORIGINAL=$(cat ./testdriver/generate/airbnb.csv)
             
-            # Option 1: Remove commas using tr
-            CONTENT_NO_COMMAS=$(echo "$ORIGINAL" | tr -d ',')
-            
-            # Option 2: Replace commas with another character (e.g., full stop) using sed
-            CSV_CONTENT=$(echo "$ORIGINAL" | sed 's/,/./g')
-            
+            CSV_CONTENT=$(echo "$ORIGINAL" | tr -d ',')
+        
             # Store in environment variables
-            echo "CONTENT_NO_COMMAS<<EOF" >> $GITHUB_ENV
-            echo "$CONTENT_NO_COMMAS" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
-            
             echo "CSV_CONTENT<<EOF" >> $GITHUB_ENV
-            echo "$CSV_CONTENT" >> $GITHUB_ENV
+            echo "$ORIGINAL" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
 
 
@@ -87,23 +79,23 @@ jobs:
           prompt: |
             ${{ env.CSV_CONTENT }}
             1. /summarize
+            create-pr: true
+            pr-base: main
+            pr-title: "TestDriver.ai / Generate Test / Playwright via CSV"
+            pr-branch: testdriver/playwright-${{ github.run_id }}-${{ github.run_attempt }}
+            pr-test-filename: airbnb.test.js
             prerun: |
-            echo "Step 1: Installing Playwright globally"
-            npm install playwright -g
-            echo "Step 3: Installing Playwright dependencies"
-            playwright install --with-deps chromium
-            echo "Step 4: Generating Playwright script"
-            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/airbnb.test.js ${{ inputs.website-url }}" -PassThru
-
-            echo "Generated Playwright script"
-            echo "$process"
-            echo "Step 5: Completed"
-            exit 0
-          create-pr: true
-          pr-base: main
-          pr-title: "TestDriver.ai / Generate Test / Playwright via CSV"
-          pr-branch: testdriver/playwright-${{ github.run_id }}-${{ github.run_attempt }}
-          pr-test-filename: airbnb.test.js
+                echo "Step 1: Installing Playwright globally"
+                npm install playwright -g
+                echo "Step 3: Installing Playwright dependencies"
+                playwright install --with-deps chromium
+                echo "Step 4: Generating Playwright script"
+                $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/airbnb.test.js ${{ inputs.website-url }}" -PassThru
+    
+                echo "Generated Playwright script"
+                echo "$process"
+                echo "Step 5: Completed"
+                exit 0
         env:
           FORCE_COLOR: "3"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
