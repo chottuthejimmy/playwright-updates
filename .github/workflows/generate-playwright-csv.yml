@@ -79,23 +79,23 @@ jobs:
           prompt: |
             ${{ env.CSV_CONTENT }}
             1. /summarize
-            create-pr: true
-            pr-base: main
-            pr-title: "TestDriver.ai / Generate Test / Playwright via CSV"
-            pr-branch: testdriver/playwright-${{ github.run_id }}-${{ github.run_attempt }}
-            pr-test-filename: airbnb.test.js
-            prerun: |
-                echo "Step 1: Installing Playwright globally"
-                npm install playwright -g
-                echo "Step 3: Installing Playwright dependencies"
-                playwright install --with-deps chromium
-                echo "Step 4: Generating Playwright script"
-                $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/airbnb.test.js ${{ inputs.website-url }}" -PassThru
-    
-                echo "Generated Playwright script"
-                echo "$process"
-                echo "Step 5: Completed"
-                exit 0
+          create-pr: true
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Test / Playwright via CSV"
+          pr-branch: testdriver/playwright-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-test-filename: airbnb.test.js
+          prerun: |
+            echo "Step 1: Installing Playwright globally"
+            npm install playwright -g
+            echo "Step 3: Installing Playwright dependencies"
+            playwright install --with-deps chromium
+            echo "Step 4: Generating Playwright script"
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/airbnb.test.js ${{ inputs.website-url }}" -PassThru
+
+            echo "Generated Playwright script"
+            echo "$process"
+            echo "Step 5: Completed"
+            exit 0
         env:
           FORCE_COLOR: "3"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
