@@ -1,0 +1,109 @@
+name: TestDriver.ai / Generate / Playwright via CSV
+
+permissions:
+  actions: read
+  contents: write
+  statuses: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      website-url:
+        type: string
+        required: true
+        default: https://www.airbnb.com
+        description: The URL of the website to test
+
+jobs:
+#   gather-csv-files:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Check out repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: ${{github.ref}}
+
+#       - name: Find all csv files and extract filenames
+#         id: csv_list
+#         run: |
+#           FILES=$(ls ./testdriver/generate/*.csv)
+#           FILENAMES=$(basename -a $FILES | sed 's/\.csv$//')
+
+  test:
+    name: Generate Playwright via CSV
+    # needs: gather-markdown-files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.ref}}
+
+      - name: Display filename being tested
+        run: |
+          echo "Running job for file: airbnb.csv"
+
+    #   - name: Read file content into environment variable
+    #     id: read_file
+    #     run: |
+    #       CONTENT=$(cat ./testdriver/generate/airbnb.csv)
+    #       echo "MARKDOWN_CONTENT<<EOF" >> $GITHUB_ENV
+    #       echo "$CONTENT" >> $GITHUB_ENV
+    #       echo "EOF" >> $GITHUB_ENV
+
+      - name: Read and process CSV content
+        id: read_csv
+        run: |
+            # Original content with commas
+            ORIGINAL=$(cat ./testdriver/generate/airbnb.csv)
+            
+            # Option 1: Remove commas using tr
+            CONTENT_NO_COMMAS=$(echo "$ORIGINAL" | tr -d ',')
+            
+            # Option 2: Replace commas with another character (e.g., full stop) using sed
+            CSV_CONTENT=$(echo "$ORIGINAL" | sed 's/,/./g')
+            
+            # Store in environment variables
+            echo "CONTENT_NO_COMMAS<<EOF" >> $GITHUB_ENV
+            echo "$CONTENT_NO_COMMAS" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            
+            echo "CSV_CONTENT<<EOF" >> $GITHUB_ENV
+            echo "$CSV_CONTENT" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+
+
+      - name: Extract current branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+
+
+      - uses: testdriverai/action@main
+        with:
+          key: ${{ secrets.TESTDRIVER_API_KEY }}
+          prompt: |
+            ${{ env.CSV_CONTENT }}  # Use the content of the file from the environment
+            1. /summarize
+            prerun: |
+            echo "Step 1: Installing Playwright globally"
+            npm install playwright -g
+            echo "Step 3: Installing Playwright dependencies"
+            playwright install --with-deps chromium
+            echo "Step 4: Generating Playwright script"
+            $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/airbnb.test.js ${{ inputs.website-url }}" -PassThru
+
+            echo "Generated Playwright script"
+            echo "$process"
+            echo "Step 5: Completed"
+            exit 0
+          create-pr: true
+          pr-base: main
+          pr-title: "TestDriver.ai / Generate Test / Playwright via CSV"
+          pr-branch: testdriver/playwright-${{ github.run_id }}-${{ github.run_attempt }}
+          pr-test-filename: airbnb.test.js
+        env:
+          FORCE_COLOR: "3"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
