@@ -78,7 +78,7 @@ jobs:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: |
             ${{ env.CSV_CONTENT }}
-            1. /summarize
+            /summarize
           create-pr: true
           pr-base: main
           pr-title: "TestDriver.ai / Generate Test / Playwright via CSV"
@@ -91,7 +91,6 @@ jobs:
             playwright install --with-deps chromium
             echo "Step 4: Generating Playwright script"
             $process = Start-Process -FilePath "npx" -ArgumentList "playwright codegen --target playwright-test --viewport-size=1920,1080 -o testdriver/airbnb.test.js ${{ inputs.website-url }}" -PassThru
-
             echo "Generated Playwright script"
             echo "$process"
             echo "Step 5: Completed"
