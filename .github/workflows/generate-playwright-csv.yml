@@ -73,7 +73,7 @@ jobs:
 
 
 
-      - uses: testdriverai/action@main
+      - uses: testdriverai/action@tarun/fix-pr-file
         with:
           key: ${{ secrets.TESTDRIVER_API_KEY }}
           prompt: |
